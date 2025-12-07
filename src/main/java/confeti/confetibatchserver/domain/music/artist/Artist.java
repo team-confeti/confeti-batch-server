@@ -6,6 +6,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,16 @@ public class Artist {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public boolean hasChange(String name, String artworkUrl) {
+        return !Objects.equals(this.getName(), name)
+            || !Objects.equals(this.getArtworkUrl(), artworkUrl);
+    }
+
+    public Artist update(String name, String artworkUrl) {
+        this.name = name;
+        this.artworkUrl = artworkUrl;
+        return this;
+    }
 
 }
