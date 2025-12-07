@@ -1,0 +1,66 @@
+package confeti.confetibatchserver.job.artist;
+
+import confeti.confetibatchserver.domain.music.artist.Artist;
+import confeti.confetibatchserver.domain.music.artist.infra.repository.ArtistRepository;
+import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+
+@Configuration
+@RequiredArgsConstructor
+public class ArtistSyncJobConfig {
+
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager platformTransactionManager;
+
+    @Bean
+    public Job artistSyncJob(Step artistSyncStep) {
+        return new JobBuilder("artistSyncJob", jobRepository)
+            .start(artistSyncStep)
+            .build();
+    }
+
+    @Bean
+    public Step artistSyncStep(
+        ItemReader<List<Artist>> artistSyncReader,
+        ItemProcessor<List<Artist>, List<Artist>> artistSyncProcessor,
+        ItemWriter<List<Artist>> artistSyncWriter
+    ) {
+        return new StepBuilder("artistSyncStep", jobRepository)
+            .<List<Artist>, List<Artist>>chunk(1, platformTransactionManager)
+            .reader(artistSyncReader)
+            .processor(artistSyncProcessor)
+            .writer(artistSyncWriter)
+            .build();
+    }
+
+    @Bean
+    @StepScope
+    public ItemReader<List<Artist>> artistSyncReader(ArtistRepository artistRepository) {
+        return new BulkArtistJpaReader(artistRepository);
+    }
+
+    @Bean
+    public ItemProcessor<List<Artist>, List<Artist>> artistSyncProcessor(
+        AppleMusicFeignClient appleMusicFeignClient) {
+        return new BulkArtistSyncProcessor(appleMusicFeignClient);
+    }
+
+    @Bean
+    public ItemWriter<List<Artist>> artistSyncWriter(ArtistRepository artistRepository) {
+        return new BulkArtistJdbcUpsertWriter(artistRepository);
+    }
+
+}
