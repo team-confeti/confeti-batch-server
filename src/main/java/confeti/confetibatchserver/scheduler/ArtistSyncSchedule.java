@@ -17,7 +17,10 @@ public class ArtistSyncSchedule {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
-    @Scheduled(cron = "0 0 4 * * *", zone = "Asia/Seoul")
+    @Scheduled(
+        cron = "${schedules.artist-sync.cron}",
+        zone = "${schedules.artist-sync.zone}"
+    )
     public void runArtistSyncJob() throws Exception {
         String date = LocalDate.now().toString();
 
