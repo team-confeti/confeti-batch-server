@@ -10,9 +10,8 @@ import feign.okhttp.OkHttpClient;
 import feign.optionals.OptionalDecoder;
 import java.time.Duration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+
 public class AppleMusicFeignConfig {
 
     @Bean
@@ -38,8 +37,8 @@ public class AppleMusicFeignConfig {
     public OkHttpClient client() {
         return new OkHttpClient(
             new okhttp3.OkHttpClient.Builder()
-                .connectTimeout(Duration.ofSeconds(2))
-                .callTimeout(Duration.ofSeconds(4))
+                .connectTimeout(Duration.ofSeconds(10))
+                .callTimeout(Duration.ofSeconds(20))
                 .build()
         );
     }
