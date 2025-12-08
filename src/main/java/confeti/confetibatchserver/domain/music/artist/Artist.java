@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,14 +39,26 @@ public class Artist {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public boolean hasChange(String name, String artworkUrl) {
-        return !Objects.equals(this.getName(), name)
-            || !Objects.equals(this.getArtworkUrl(), artworkUrl);
-    }
-
-    public Artist update(String name, String artworkUrl) {
+    @Builder
+    private Artist(String id, String name, String artworkUrl) {
+        this.id = id;
         this.name = name;
         this.artworkUrl = artworkUrl;
+    }
+
+    public boolean isDifferent(Artist artist) {
+        return !Objects.equals(id, artist.getId())
+            || !Objects.equals(name, artist.getName())
+            || !Objects.equals(artworkUrl, artist.getArtworkUrl());
+    }
+
+    public Artist update(Artist artist) {
+        if (!Objects.equals(id, artist.getId())) {
+            return this;
+        }
+
+        this.name = artist.getName();
+        this.artworkUrl = artist.getArtworkUrl();
         return this;
     }
 
