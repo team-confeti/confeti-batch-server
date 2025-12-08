@@ -3,6 +3,7 @@ package confeti.confetibatchserver.job.artist;
 import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.domain.music.artist.infra.repository.ArtistRepository;
 import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
+import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
 import java.io.IOException;
 import java.util.List;
@@ -34,6 +35,7 @@ public class ArtistSyncJobConfig {
     public Job artistSyncJob(Step artistSyncStep) {
         return new JobBuilder("artistSyncJob", jobRepository)
             .start(artistSyncStep)
+            .listener(new JobLoggingListener())
             .build();
     }
 
