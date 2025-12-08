@@ -26,7 +26,7 @@ public class RelatedArtist {
     @Column(name = "artist_id")
     private String artistId;
 
-    @Column(name = "related_artist_id", unique = true)
+    @Column(name = "related_artist_id")
     private String relatedArtistId;
 
     @CreatedDate
