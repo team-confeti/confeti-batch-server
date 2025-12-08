@@ -2,12 +2,14 @@ package confeti.confetibatchserver.job.artist;
 
 import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
+import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistArtworkResponse;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistAttributesResponse;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistResponse;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistsResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +46,13 @@ public class BulkArtistSyncProcessor implements ItemProcessor<List<Artist>, List
 
             if (artistResponse != null) {
                 AppleMusicArtistAttributesResponse attributes = artistResponse.attributes();
-                if (artist.hasChange(attributes.name(), attributes.artwork().url())) {
-                    updatedArtists.add(
-                        artist.update(attributes.name(), attributes.artwork().url()));
+                String artistName = attributes.name();
+                String artistArtworkUrl = Optional.ofNullable(attributes.artwork())
+                    .map(AppleMusicArtistArtworkResponse::url)
+                    .orElse(null);
+
+                if (artist.hasChange(artistName, artistArtworkUrl)) {
+                    updatedArtists.add(artist.update(artistName, artistArtworkUrl));
                 }
             }
         }
