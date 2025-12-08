@@ -5,6 +5,7 @@ import confeti.confetibatchserver.domain.music.artist.infra.repository.ArtistRep
 import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -16,8 +17,10 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class ArtistSyncJobConfig {
@@ -59,8 +62,8 @@ public class ArtistSyncJobConfig {
     }
 
     @Bean
-    public ItemWriter<List<Artist>> artistSyncWriter(ArtistRepository artistRepository) {
-        return new BulkArtistJdbcUpsertWriter(artistRepository);
+    public ItemWriter<List<Artist>> artistSyncWriter(JdbcTemplate jdbcTemplate) {
+        return new BulkArtistJdbcUpsertWriter(jdbcTemplate);
     }
 
 }
