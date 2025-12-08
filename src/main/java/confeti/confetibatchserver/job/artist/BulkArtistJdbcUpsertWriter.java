@@ -17,11 +17,11 @@ public class BulkArtistJdbcUpsertWriter implements ItemWriter<List<Artist>> {
 
     private static final String BULK_INSERT_SQL = """
         INSERT INTO artists (id, name, artwork_url, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?) AS new_data
+        VALUES (?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
-            name = new_data.name,
-            artwork_url = new_data.artwork_url,
-            updated_at = new_data.updated_at
+            name = VALUES(name),
+            artwork_url = VALUES(artwork_url),
+            updated_at = VALUES(updated_at)
         """;
 
     private final JdbcTemplate jdbcTemplate;
