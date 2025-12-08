@@ -3,6 +3,8 @@ package confeti.confetibatchserver.job.artist;
 import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.domain.music.artist.infra.repository.ArtistRepository;
 import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
+import feign.RetryableException;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +48,10 @@ public class ArtistSyncJobConfig {
             .reader(artistSyncReader)
             .processor(artistSyncProcessor)
             .writer(artistSyncWriter)
+            .faultTolerant()
+            .retry(RetryableException.class)     // Feign의 재시도 가능 예외
+            .retry(IOException.class)
+            .retryLimit(3)
             .build();
     }
 
