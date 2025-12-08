@@ -28,12 +28,16 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class ArtistSyncJobConfig {
 
+    public static final String JOB_NAME = "artistSyncJob";
+    public static final String JOB_PARAMETER_DATE = "requestDate";
+    public static final String ARTIST_SYNC_STEP_NAME = "artistSyncStep";
+
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
 
     @Bean
     public Job artistSyncJob(Step artistSyncStep) {
-        return new JobBuilder("artistSyncJob", jobRepository)
+        return new JobBuilder(JOB_NAME, jobRepository)
             .start(artistSyncStep)
             .listener(new JobLoggingListener())
             .build();
@@ -45,7 +49,7 @@ public class ArtistSyncJobConfig {
         ItemProcessor<List<Artist>, List<Artist>> artistSyncProcessor,
         ItemWriter<List<Artist>> artistSyncWriter
     ) {
-        return new StepBuilder("artistSyncStep", jobRepository)
+        return new StepBuilder(ARTIST_SYNC_STEP_NAME, jobRepository)
             .<List<Artist>, List<Artist>>chunk(1, platformTransactionManager)
             .reader(artistSyncReader)
             .processor(artistSyncProcessor)

@@ -1,5 +1,6 @@
 package confeti.confetibatchserver.scheduler;
 
+import confeti.confetibatchserver.job.artist.ArtistSyncJobConfig;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;
@@ -21,10 +22,10 @@ public class ArtistSyncSchedule {
         String date = LocalDate.now().toString();
 
         JobParameters jobParameters = new JobParametersBuilder()
-            .addString("requestDate", date)
+            .addString(ArtistSyncJobConfig.JOB_PARAMETER_DATE, date)
             .toJobParameters();
 
-        jobLauncher.run(jobRegistry.getJob("artistSyncJob"), jobParameters);
+        jobLauncher.run(jobRegistry.getJob(ArtistSyncJobConfig.JOB_NAME), jobParameters);
     }
 
 }
