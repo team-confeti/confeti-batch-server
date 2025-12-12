@@ -1,0 +1,44 @@
+name: 'PR Discord Notification'
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    types:
+      - opened
+      - closed
+
+jobs:
+  notification:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Discord Notification
+        env:
+          ACTION: ${{ github.event.action }}
+          MERGED: ${{ github.event.pull_request.merged }}
+          USERNAME: ${{ github.event.pull_request.user.login }}
+          TITLE: ${{ github.event.pull_request.title }}
+          URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          DESCRIPTION_MESSAGE="PR 생성"
+
+          if [[ "$ACTION" == "opened" ]]; then
+            DESCRIPTION_MESSAGE="{[ OPENED ] 리뷰 달아주세여 - Batch"
+          elif [[ "$ACTION" == "closed" && "$MERGED" == "true" ]]; then
+            DESCRIPTION_MESSAGE="[ MERGED ] 💯💯💯"
+          else
+            DESCRIPTION_MESSAGE="[ CLOSED ] 마음을 불태워라"
+          fi
+          
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{
+              "embeds": [
+                {
+                  "title": "[confeti-server] 서버 Level Up + 1 🔥",
+                  "description": "**🔥 '"$DESCRIPTION_MESSAGE"' 🔥**\n👤 '"$USERNAME"'\n🔊 '"$TITLE"'\n🔗 '"$URL"'",
+                  "color": 6847432
+                }
+              ]
+            }' ${{ secrets.DISCORD_WEBHOOK_URL }};
