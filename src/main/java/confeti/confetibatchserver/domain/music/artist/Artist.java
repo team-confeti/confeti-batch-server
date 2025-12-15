@@ -1,5 +1,6 @@
 package confeti.confetibatchserver.domain.music.artist;
 
+import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -46,20 +47,18 @@ public class Artist {
         this.artworkUrl = artworkUrl;
     }
 
-    public boolean isDifferent(Artist artist) {
-        return !Objects.equals(id, artist.getId())
-            || !Objects.equals(name, artist.getName())
-            || !Objects.equals(artworkUrl, artist.getArtworkUrl());
+    public static Artist from(ConfetiArtist artist) {
+        return Artist.builder()
+            .id(artist.getId())
+            .name(artist.getName())
+            .artworkUrl(artist.getProfileUrl())
+            .build();
     }
 
-    public Artist update(Artist artist) {
-        if (!Objects.equals(id, artist.getId())) {
-            return this;
-        }
-
-        this.name = artist.getName();
-        this.artworkUrl = artist.getArtworkUrl();
-        return this;
+    public boolean isDifferentData(ConfetiArtist artist) {
+        return !Objects.equals(id, artist.getId())
+            || !Objects.equals(name, artist.getName())
+            || !Objects.equals(artworkUrl, artist.getProfileUrl());
     }
 
 }
