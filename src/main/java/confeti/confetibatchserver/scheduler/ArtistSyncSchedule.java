@@ -1,5 +1,9 @@
 package confeti.confetibatchserver.scheduler;
 
+import static confeti.confetibatchserver.job.JobInfo.ARTIST_SYNC_JOB;
+
+import confeti.confetibatchserver.domain.batch.jobconfig.JobConfig;
+import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigService;
 import confeti.confetibatchserver.job.artist.ArtistSyncJobConfig;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -16,19 +20,23 @@ public class ArtistSyncSchedule {
 
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
+    private final JobConfigService jobConfigService;
 
     @Scheduled(
         cron = "${schedules.artist-sync.cron}",
         zone = "${schedules.artist-sync.zone}"
     )
     public void runArtistSyncJob() throws Exception {
-        String date = LocalDate.now().toString();
+        JobConfig jobConfig = jobConfigService.getByJobInfo(ARTIST_SYNC_JOB);
+        if (jobConfig.isActive()) {
+            String date = LocalDate.now().toString();
 
-        JobParameters jobParameters = new JobParametersBuilder()
-            .addString(ArtistSyncJobConfig.JOB_PARAMETER_DATE, date)
-            .toJobParameters();
+            JobParameters jobParameters = new JobParametersBuilder()
+                .addString(ArtistSyncJobConfig.JOB_PARAMETER_DATE, date)
+                .toJobParameters();
 
-        jobLauncher.run(jobRegistry.getJob(ArtistSyncJobConfig.JOB_NAME), jobParameters);
+            jobLauncher.run(jobRegistry.getJob(ARTIST_SYNC_JOB.getJobName()), jobParameters);
+        }
     }
 
 }
