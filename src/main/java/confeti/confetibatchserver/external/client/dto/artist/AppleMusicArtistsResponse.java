@@ -1,15 +1,15 @@
 package confeti.confetibatchserver.external.client.dto.artist;
 
-import confeti.confetibatchserver.domain.music.artist.Artist;
+import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.List;
 
 public record AppleMusicArtistsResponse(
     List<AppleMusicArtistResponse> data
 ) {
 
-    public List<Artist> toArtists() {
+    public List<ConfetiArtist> toConfetiArtists() {
         return data.stream()
-            .map(AppleMusicArtistResponse::toArtist)
+            .map(AppleMusicArtistResponse::toConfetiArtist)
             .toList();
     }
 }

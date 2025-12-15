@@ -1,6 +1,6 @@
 package confeti.confetibatchserver.external.client.dto.artist;
 
-import confeti.confetibatchserver.domain.music.artist.Artist;
+import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.Optional;
 
 public record AppleMusicArtistResponse(
@@ -10,7 +10,7 @@ public record AppleMusicArtistResponse(
     AppleMusicArtistRelationshipsResponse relationships
 ) {
 
-    public Artist toArtist() {
+    public ConfetiArtist toConfetiArtist() {
         String name = Optional.ofNullable(attributes)
             .map(AppleMusicArtistAttributesResponse::name)
             .orElse(null);
@@ -20,11 +20,7 @@ public record AppleMusicArtistResponse(
             .map(AppleMusicArtistArtworkResponse::url)
             .orElse(null);
 
-        return Artist.builder()
-            .id(id)
-            .name(name)
-            .artworkUrl(artworkUrl)
-            .build();
+        return ConfetiArtist.of(id, name, artworkUrl);
     }
 
 }
