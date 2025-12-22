@@ -1,0 +1,67 @@
+spring:
+  config:
+    import:
+      - classpath:common/application-schedule.yml
+      - aws-secretsmanager:/confeti-api/prod/database?prefix=db-secrets.
+      - aws-secretsmanager:/confeti-api/prod/apple-music?prefix=apple-music-secrets.
+
+  application:
+    name: confeti-batch-prod
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${db-secrets.host}:${db-secrets.port}/${db-secrets.dbname}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&rewriteBatchedStatements=true
+    username: ${db-secrets.username}
+    password: ${db-secrets.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate.default_batch_fetch_size: ${chunkSize:100}
+
+  batch:
+    job:
+      names: ${job.name:NONE}
+      enabled: false # disable auto start when application run
+    jdbc:
+      initialize-schema: always # TODO switch to never
+      schema: classpath:org/springframework/batch/core/schema-mysql.sql
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+
+logging:
+  level:
+    org.sopt.confeti: info
+    org.springframework.data.elasticsearch: info
+    org.springframework.web: info
+
+---
+server:
+  port: 8081
+
+spring:
+  config:
+    activate:
+      on-profile: blue
+---
+server:
+  port: 8082
+
+spring:
+  config:
+    activate:
+      on-profile: green
+
+logging:
+  level:
+    org.springframework:
+      batch: INFO
+      jdbc: INFO
