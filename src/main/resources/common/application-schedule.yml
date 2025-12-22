@@ -1,7 +1,3 @@
-spring:
-  config:
-    activate:
-      on-profile: schedule
 schedules:
   artist-sync:
     cron: "0 0 4 * * *"

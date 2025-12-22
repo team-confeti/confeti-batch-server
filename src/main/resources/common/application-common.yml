@@ -1,0 +1,12 @@
+spring:
+  config:
+    import:
+      - classpath:common/application-schedule.yml
+      - classpath:common/application-cloud.yml
+      - classpath:common/application-apple-music.yml
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: Asia/Seoul
+    default-property-inclusion: non_null
