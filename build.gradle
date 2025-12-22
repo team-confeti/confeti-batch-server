@@ -14,6 +14,10 @@ java {
     }
 }
 
+ext {
+    set('awspringVersion', '3.3.1')
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -52,6 +56,12 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'io.github.openfeign:feign-okhttp:11.10'
     implementation 'io.github.openfeign:feign-jackson:11.10'
+
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Secret Manager
+    implementation "io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:${awspringVersion}"
 }
 
 dependencyManagement {
