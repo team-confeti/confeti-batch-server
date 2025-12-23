@@ -1,9 +1,8 @@
 spring:
   config:
     import:
-      - classpath:common/application-schedule.yml
+      - classpath:common/application-common.yml
       - aws-secretsmanager:/confeti-api/prod/database?prefix=db-secrets.
-      - aws-secretsmanager:/confeti-api/prod/apple-music?prefix=apple-music-secrets.
 
   application:
     name: confeti-batch-prod
