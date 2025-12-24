@@ -1,6 +1,6 @@
 package confeti.confetibatchserver.scheduler;
 
-import static confeti.confetibatchserver.job.JobInfo.ARTIST_SYNC_JOB;
+import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 
 import confeti.confetibatchserver.domain.batch.jobconfig.JobConfig;
 import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigService;
@@ -27,7 +27,7 @@ public class ArtistSyncSchedule {
         zone = "${schedules.artist-sync.zone}"
     )
     public void runArtistSyncJob() throws Exception {
-        JobConfig jobConfig = jobConfigService.getByJobInfo(ARTIST_SYNC_JOB);
+        JobConfig jobConfig = jobConfigService.getByJobInfo(ARTIST_SONG_SYNC_JOB);
         if (jobConfig.isActive()) {
             String date = LocalDate.now().toString();
 
@@ -35,7 +35,7 @@ public class ArtistSyncSchedule {
                 .addString(ArtistSyncJobConfig.JOB_PARAMETER_DATE, date)
                 .toJobParameters();
 
-            jobLauncher.run(jobRegistry.getJob(ARTIST_SYNC_JOB.getJobName()), jobParameters);
+            jobLauncher.run(jobRegistry.getJob(ARTIST_SONG_SYNC_JOB.getJobName()), jobParameters);
         }
     }
 

@@ -1,6 +1,5 @@
 package confeti.confetibatchserver.domain.batch.stepconfig;
 
-import confeti.confetibatchserver.job.JobInfo;
 import confeti.confetibatchserver.job.StepInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,9 +18,6 @@ public class StepConfig {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StepInfo stepInfo;
-
-    @Enumerated(EnumType.STRING)
-    private JobInfo jobInfo;
 
     @Column(nullable = false)
     private int chunkSize;

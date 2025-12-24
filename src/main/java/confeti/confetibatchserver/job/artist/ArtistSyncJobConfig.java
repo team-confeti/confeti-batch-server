@@ -29,6 +29,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -47,8 +48,8 @@ public class ArtistSyncJobConfig {
     private final ArtistQueryProvider artistQueryProvider;
 
     @Bean
-    public Job artistSyncJob(Step artistSyncStep) {
-        return new JobBuilder(ARTIST_SYNC_JOB.getJobName(), jobRepository)
+    public Job artistSongSyncJob(Step artistSyncStep, Step artistSongSyncStep) {
+        return new JobBuilder(ARTIST_SONG_SYNC_JOB.getJobName(), jobRepository)
             .start(artistSyncStep)
             .start(artistSongSyncStep)
             .listener(new JobLoggingListener())
@@ -63,10 +64,10 @@ public class ArtistSyncJobConfig {
     ) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SONG_SYNC_STEP);
 
-        return new StepBuilder(ARTIST_SONG_SYNC_STEP.getName(), jobRepository)
+        return new StepBuilder(stepConfig.getStepInfo().getName(), jobRepository)
             .<Artist, Artist>chunk(stepConfig.getChunkSize(),
                 platformTransactionManager)
-            .reader(artistSyncReader) // Artist를 읽어와서 전달하므로... 이걸 그대로 사용하기?
+            .reader(artistSyncReader)
             .writer(artistSongSyncWriter)
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
@@ -83,7 +84,7 @@ public class ArtistSyncJobConfig {
     ) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SYNC_STEP);
 
-        return new StepBuilder(ARTIST_SYNC_STEP.getName(), jobRepository)
+        return new StepBuilder(stepConfig.getStepInfo().getName(), jobRepository)
             .<Artist, Artist>chunk(stepConfig.getChunkSize(),
                 platformTransactionManager)
             .reader(artistSyncReader)
