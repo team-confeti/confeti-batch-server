@@ -1,12 +1,15 @@
 package confeti.confetibatchserver.domain.music.song;
 
+import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -42,5 +45,32 @@ public class Song {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder
+    private Song(String id, String trackName, String artistName, String artworkUrl,
+        String previewUrl) {
+        this.id = id;
+        this.trackName = trackName;
+        this.artistName = artistName;
+        this.artworkUrl = artworkUrl;
+        this.previewUrl = previewUrl;
+    }
+
+    public static Song from(ConfetiSong confetiSong) {
+        return Song.builder()
+            .id(confetiSong.getId())
+            .trackName(confetiSong.getTrackName())
+            .artistName(confetiSong.getArtistName())
+            .artworkUrl(confetiSong.getArtworkUrl())
+            .previewUrl(confetiSong.getPreviewUrl())
+            .build();
+    }
+
+    public boolean isDifferentData(ConfetiSong confetiSong) {
+        return !Objects.equals(this.artistName, confetiSong.getArtistName())
+            || !Objects.equals(this.trackName, confetiSong.getTrackName())
+            || !Objects.equals(this.artworkUrl, confetiSong.getArtworkUrl())
+            || !Objects.equals(this.previewUrl, confetiSong.getPreviewUrl());
+    }
 }
 
