@@ -1,9 +1,12 @@
 package confeti.confetibatchserver.job.artist;
 
-import static confeti.confetibatchserver.job.JobInfo.ARTIST_SYNC_JOB;
+import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;
+import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
+import static confeti.confetibatchserver.job.StepInfo.ARTIST_SONG_SYNC_STEP;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SYNC_STEP;
 import static confeti.confetibatchserver.job.artist.ArtistQueryProvider.ARTIST_MAPPER;
 
+import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
 import confeti.confetibatchserver.domain.music.artist.Artist;
@@ -12,6 +15,7 @@ import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
 import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +50,28 @@ public class ArtistSyncJobConfig {
     public Job artistSyncJob(Step artistSyncStep) {
         return new JobBuilder(ARTIST_SYNC_JOB.getJobName(), jobRepository)
             .start(artistSyncStep)
+            .start(artistSongSyncStep)
             .listener(new JobLoggingListener())
+            .build();
+    }
+
+    @Bean
+    @JobScope
+    public Step artistSongSyncStep(
+        ItemReader<Artist> artistSyncReader,
+        ItemWriter<Artist> artistSongSyncWriter
+    ) throws Exception {
+        StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SONG_SYNC_STEP);
+
+        return new StepBuilder(ARTIST_SONG_SYNC_STEP.getName(), jobRepository)
+            .<Artist, Artist>chunk(stepConfig.getChunkSize(),
+                platformTransactionManager)
+            .reader(artistSyncReader) // Artist를 읽어와서 전달하므로... 이걸 그대로 사용하기?
+            .writer(artistSongSyncWriter)
+            .faultTolerant()
+            .retry(RetryableException.class)     // Feign의 재시도 가능 예외
+            .retry(IOException.class)
+            .retryLimit(3)
             .build();
     }
 
@@ -90,6 +115,14 @@ public class ArtistSyncJobConfig {
         AppleMusicFeignClient appleMusicFeignClient
     ) {
         return new BulkArtistUpsertWriter(artistService, appleMusicFeignClient);
+    }
+
+    @Bean
+    public ItemWriter<Artist> artistSongSyncWriter(
+        MusicSyncFacade musicSyncFacade,
+        @Qualifier(MUSIC_SYNC_EXECUTOR) Executor executor
+    ) {
+        return new BulkArtistSongUpsertWriter(musicSyncFacade, executor);
     }
 
 }
