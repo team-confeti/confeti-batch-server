@@ -1,6 +1,5 @@
 package confeti.confetibatchserver.job.artist;
 
-import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,15 +14,10 @@ import org.springframework.stereotype.Component;
 public class ArtistQueryProvider {
 
     private static final String ARTIST_ID = "id";
+    public static final RowMapper<String> ARTIST_ID_MAPPER = ((rs, rowNum) -> rs.getString(
+        ARTIST_ID));
     private static final String ARTIST_NAME = "name";
     private static final String ARTIST_PROFILE_URL = "artwork_url";
-
-    public static final RowMapper<Artist> ARTIST_MAPPER = (rs, rowNum) -> Artist.builder()
-        .id(rs.getString(ARTIST_ID))
-        .name(rs.getString(ARTIST_NAME))
-        .artworkUrl(rs.getString(ARTIST_PROFILE_URL))
-        .build();
-
     public static final RowMapper<ConfetiArtist> CONFETI_ARTIST_MAPPER = (rs, rowNum) ->
         ConfetiArtist.of(
             rs.getString(ARTIST_ID),
@@ -35,6 +29,20 @@ public class ArtistQueryProvider {
         queryProvider.setDataSource(dataSource);
 
         queryProvider.setSelectClause("id, name, artwork_url");
+        queryProvider.setFromClause("FROM artists");
+
+        Map<String, Order> sortKey = new HashMap<>();
+        sortKey.put(ARTIST_ID, Order.ASCENDING);
+        queryProvider.setSortKeys(sortKey);
+
+        return queryProvider.getObject();
+    }
+
+    public PagingQueryProvider selectAllArtistIds(DataSource dataSource) throws Exception {
+        SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
+        queryProvider.setDataSource(dataSource);
+
+        queryProvider.setSelectClause("id");
         queryProvider.setFromClause("FROM artists");
 
         Map<String, Order> sortKey = new HashMap<>();

@@ -4,13 +4,12 @@ import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXEC
 import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SONG_SYNC_STEP;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SYNC_STEP;
-import static confeti.confetibatchserver.job.artist.ArtistQueryProvider.ARTIST_MAPPER;
+import static confeti.confetibatchserver.job.artist.ArtistQueryProvider.ARTIST_ID_MAPPER;
 import static confeti.confetibatchserver.job.artist.ArtistQueryProvider.CONFETI_ARTIST_MAPPER;
 
 import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
-import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
@@ -59,15 +58,15 @@ public class ArtistSyncJobConfig {
     @Bean
     @JobScope
     public Step artistSongSyncStep(
-        ItemReader<Artist> artistSyncReader,
-        ItemWriter<Artist> artistSongSyncWriter
+        ItemReader<String> artistIdReader,
+        ItemWriter<String> artistSongSyncWriter
     ) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SONG_SYNC_STEP);
 
         return new StepBuilder(stepConfig.getStepInfo().getName(), jobRepository)
-            .<Artist, Artist>chunk(stepConfig.getChunkSize(),
+            .<String, String>chunk(stepConfig.getChunkSize(),
                 platformTransactionManager)
-            .reader(artistSyncReader)
+            .reader(artistIdReader)
             .writer(artistSongSyncWriter)
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
@@ -98,15 +97,15 @@ public class ArtistSyncJobConfig {
 
     @Bean
     @StepScope
-    public ItemReader<Artist> artistSyncReader(DataSource dataSource) throws Exception {
+    public ItemReader<String> artistIdReader(DataSource dataSource) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SYNC_STEP);
-        return new JdbcPagingItemReaderBuilder<Artist>()
-            .name("artistSyncReader")
+        return new JdbcPagingItemReaderBuilder<String>()
+            .name("artistIdReader")
             .dataSource(dataSource)
             .fetchSize(stepConfig.getFetchSize())
             .pageSize(stepConfig.getPageSize())
-            .rowMapper(ARTIST_MAPPER)
-            .queryProvider(artistQueryProvider.selectAllArtists(dataSource))
+            .rowMapper(ARTIST_ID_MAPPER)
+            .queryProvider(artistQueryProvider.selectAllArtistIds(dataSource))
             .build();
     }
 
@@ -132,7 +131,7 @@ public class ArtistSyncJobConfig {
     }
 
     @Bean
-    public ItemWriter<Artist> artistSongSyncWriter(
+    public ItemWriter<String> artistSongSyncWriter(
         MusicSyncFacade musicSyncFacade,
         @Qualifier(MUSIC_SYNC_EXECUTOR) Executor executor
     ) {
