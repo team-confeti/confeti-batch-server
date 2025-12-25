@@ -22,24 +22,24 @@ public class ArtistService {
     }
 
     public List<Artist> getUpdatedArtists(
-        List<Artist> savedArtists,
+        List<ConfetiArtist> savedArtists,
         List<ConfetiArtist> newArtists
     ) {
-        Map<String, Artist> savedArtistById = artistsToMap(savedArtists);
+        Map<String, ConfetiArtist> savedArtistById = artistsToMap(savedArtists);
 
         return newArtists.stream()
             .filter(artist -> {
-                Artist savedArtist = savedArtistById.get(artist.getId());
+                ConfetiArtist savedArtist = savedArtistById.get(artist.getId());
                 return savedArtist != null && savedArtist.isDifferentData(artist);
             })
             .map(Artist::from)
             .toList();
     }
 
-    private Map<String, Artist> artistsToMap(Collection<Artist> artists) {
+    private Map<String, ConfetiArtist> artistsToMap(Collection<ConfetiArtist> artists) {
         return artists.stream()
             .collect(Collectors.toMap(
-                Artist::getId,
+                ConfetiArtist::getId,
                 Function.identity(),
                 (exist, replacement) -> exist));
     }

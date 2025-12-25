@@ -1,6 +1,7 @@
 package confeti.confetibatchserver.job.artist;
 
 import confeti.confetibatchserver.domain.music.artist.Artist;
+import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -19,6 +20,12 @@ public class ArtistQueryProvider {
         .artworkUrl(rs.getString("artwork_url"))
         .build();
 
+    public static final RowMapper<ConfetiArtist> CONFETI_ARTIST_MAPPER = (rs, rowNum) ->
+        ConfetiArtist.of(
+            rs.getString("id"),
+            rs.getString("name"),
+            rs.getString("artwork_url"));
+
     public PagingQueryProvider selectAllArtists(DataSource dataSource) throws Exception {
         SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
         queryProvider.setDataSource(dataSource);
@@ -32,4 +39,5 @@ public class ArtistQueryProvider {
 
         return queryProvider.getObject();
     }
+
 }
