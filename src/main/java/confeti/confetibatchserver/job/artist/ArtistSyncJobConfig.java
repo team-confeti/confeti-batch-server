@@ -10,8 +10,6 @@ import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
 import confeti.confetibatchserver.domain.music.artist.Artist;
-import confeti.confetibatchserver.domain.music.artist.application.ArtistService;
-import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
 import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
 import java.io.IOException;
@@ -112,10 +110,9 @@ public class ArtistSyncJobConfig {
 
     @Bean
     public ItemWriter<Artist> artistSyncWriter(
-        ArtistService artistService,
-        AppleMusicFeignClient appleMusicFeignClient
+        MusicSyncFacade musicSyncFacade
     ) {
-        return new BulkArtistUpsertWriter(artistService, appleMusicFeignClient);
+        return new BulkArtistUpsertWriter(musicSyncFacade);
     }
 
     @Bean

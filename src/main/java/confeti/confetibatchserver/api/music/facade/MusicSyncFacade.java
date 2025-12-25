@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class MusicSyncFacade {
 
     private final MusicAPIHandler musicAPIHandler;
+    private final ArtistService artistService;
     private final SongService songService;
 
     public void upsertSongByArtistId(String artistId) {
@@ -48,4 +49,12 @@ public class MusicSyncFacade {
         }
         return upsertSongs;
     }
+
+    public void upsertArtists(List<Artist> artists) {
+        Set<String> artistIds = artists.stream().map(Artist::getId).collect(Collectors.toSet());
+        List<ConfetiArtist> fetchedArtists = musicAPIHandler.getArtistsByIds(artistIds);
+        List<Artist> updatedArtists = artistService.getUpdatedArtists(artists, fetchedArtists);
+        artistService.upsertArtists(updatedArtists);
+    }
+
 }
