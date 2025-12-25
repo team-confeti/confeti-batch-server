@@ -7,7 +7,6 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,12 +26,12 @@ public class Song {
     @Column(nullable = false)
     private String id;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 1000, nullable = false)
     private String trackName;
 
-    @Column(length = 100)
+    @Column(length = 1000)
     private String artistName;
- 
+
     @Column(length = 3000)
     private String artworkUrl;
 
@@ -65,12 +64,4 @@ public class Song {
             .previewUrl(confetiSong.getPreviewUrl())
             .build();
     }
-
-    public boolean isDifferentData(ConfetiSong confetiSong) {
-        return !Objects.equals(this.artistName, confetiSong.getArtistName())
-            || !Objects.equals(this.trackName, confetiSong.getTrackName())
-            || !Objects.equals(this.artworkUrl, confetiSong.getArtworkUrl())
-            || !Objects.equals(this.previewUrl, confetiSong.getPreviewUrl());
-    }
 }
-
