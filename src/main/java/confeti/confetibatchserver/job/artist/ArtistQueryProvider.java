@@ -14,17 +14,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class ArtistQueryProvider {
 
+    private static final String ARTIST_ID = "id";
+    private static final String ARTIST_NAME = "name";
+    private static final String ARTIST_PROFILE_URL = "artwork_url";
+
     public static final RowMapper<Artist> ARTIST_MAPPER = (rs, rowNum) -> Artist.builder()
-        .id(rs.getString("id"))
-        .name(rs.getString("name"))
-        .artworkUrl(rs.getString("artwork_url"))
+        .id(rs.getString(ARTIST_ID))
+        .name(rs.getString(ARTIST_NAME))
+        .artworkUrl(rs.getString(ARTIST_PROFILE_URL))
         .build();
 
     public static final RowMapper<ConfetiArtist> CONFETI_ARTIST_MAPPER = (rs, rowNum) ->
         ConfetiArtist.of(
-            rs.getString("id"),
-            rs.getString("name"),
-            rs.getString("artwork_url"));
+            rs.getString(ARTIST_ID),
+            rs.getString(ARTIST_NAME),
+            rs.getString(ARTIST_PROFILE_URL));
 
     public PagingQueryProvider selectAllArtists(DataSource dataSource) throws Exception {
         SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
@@ -34,7 +38,7 @@ public class ArtistQueryProvider {
         queryProvider.setFromClause("FROM artists");
 
         Map<String, Order> sortKey = new HashMap<>();
-        sortKey.put("id", Order.ASCENDING);
+        sortKey.put(ARTIST_ID, Order.ASCENDING);
         queryProvider.setSortKeys(sortKey);
 
         return queryProvider.getObject();
