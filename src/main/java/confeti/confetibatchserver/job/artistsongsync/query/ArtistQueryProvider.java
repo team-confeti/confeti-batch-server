@@ -1,4 +1,4 @@
-package confeti.confetibatchserver.job.artist;
+package confeti.confetibatchserver.job.artistsongsync.query;
 
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.HashMap;

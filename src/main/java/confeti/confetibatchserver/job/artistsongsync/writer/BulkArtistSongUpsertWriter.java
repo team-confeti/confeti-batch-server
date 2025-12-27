@@ -1,4 +1,4 @@
-package confeti.confetibatchserver.job.artist;
+package confeti.confetibatchserver.job.artistsongsync.writer;
 
 
 import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;

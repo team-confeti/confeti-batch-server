@@ -4,7 +4,7 @@ import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 
 import confeti.confetibatchserver.domain.batch.jobconfig.JobConfig;
 import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigService;
-import confeti.confetibatchserver.job.artist.ArtistSyncJobConfig;
+import confeti.confetibatchserver.job.artistsongsync.ArtistSyncJobConfig;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;

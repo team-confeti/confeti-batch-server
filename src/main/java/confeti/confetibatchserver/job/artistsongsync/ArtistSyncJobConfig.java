@@ -1,16 +1,19 @@
-package confeti.confetibatchserver.job.artist;
+package confeti.confetibatchserver.job.artistsongsync;
 
 import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;
 import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SONG_SYNC_STEP;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SYNC_STEP;
-import static confeti.confetibatchserver.job.artist.ArtistQueryProvider.ARTIST_ID_MAPPER;
-import static confeti.confetibatchserver.job.artist.ArtistQueryProvider.CONFETI_ARTIST_MAPPER;
+import static confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider.ARTIST_ID_MAPPER;
+import static confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider.CONFETI_ARTIST_MAPPER;
 
 import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
+import confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider;
+import confeti.confetibatchserver.job.artistsongsync.writer.BulkArtistSongUpsertWriter;
+import confeti.confetibatchserver.job.artistsongsync.writer.BulkArtistUpsertWriter;
 import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
 import java.io.IOException;
