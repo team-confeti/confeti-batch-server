@@ -4,14 +4,14 @@ import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXEC
 import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SONG_SYNC_STEP;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SYNC_STEP;
-import static confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider.ARTIST_ID_MAPPER;
-import static confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider.CONFETI_ARTIST_MAPPER;
 
 import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider;
+import confeti.confetibatchserver.job.artistsongsync.reader.ArtistIdReader;
+import confeti.confetibatchserver.job.artistsongsync.reader.ConfetiArtistReader;
 import confeti.confetibatchserver.job.artistsongsync.writer.BulkArtistSongUpsertWriter;
 import confeti.confetibatchserver.job.artistsongsync.writer.BulkArtistUpsertWriter;
 import confeti.confetibatchserver.logger.JobLoggingListener;
@@ -30,7 +30,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -102,28 +101,14 @@ public class ArtistSyncJobConfig {
     @StepScope
     public ItemReader<String> artistIdReader(DataSource dataSource) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SYNC_STEP);
-        return new JdbcPagingItemReaderBuilder<String>()
-            .name("artistIdReader")
-            .dataSource(dataSource)
-            .fetchSize(stepConfig.getFetchSize())
-            .pageSize(stepConfig.getPageSize())
-            .rowMapper(ARTIST_ID_MAPPER)
-            .queryProvider(artistQueryProvider.selectAllArtistIds(dataSource))
-            .build();
+        return new ArtistIdReader(dataSource, stepConfig, artistQueryProvider);
     }
 
     @Bean
     @StepScope
     public ItemReader<ConfetiArtist> confetiArtistReader(DataSource dataSource) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SYNC_STEP);
-        return new JdbcPagingItemReaderBuilder<ConfetiArtist>()
-            .name("confetiArtistReader")
-            .dataSource(dataSource)
-            .fetchSize(stepConfig.getFetchSize())
-            .pageSize(stepConfig.getPageSize())
-            .rowMapper(CONFETI_ARTIST_MAPPER)
-            .queryProvider(artistQueryProvider.selectAllArtists(dataSource))
-            .build();
+        return new ConfetiArtistReader(dataSource, stepConfig, artistQueryProvider);
     }
 
     @Bean
