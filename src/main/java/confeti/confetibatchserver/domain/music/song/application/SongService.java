@@ -1,7 +1,6 @@
 package confeti.confetibatchserver.domain.music.song.application;
 
 import confeti.confetibatchserver.domain.music.song.infra.repository.SongRepository;
-import confeti.confetibatchserver.domain.music.song.projection.SongProjection;
 import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,25 +21,25 @@ public class SongService {
 
     @Transactional
     public void upsert(String artistId, List<ConfetiSong> songs) {
-        Map<String, SongProjection> songMapByArtistId = getConfetiSongMapByArtistId(
+        Map<String, ConfetiSong> songMapByArtistId = getConfetiSongMapByArtistId(
             artistId);
         List<ConfetiSong> upsertSongs = getUpsertSongs(songs, songMapByArtistId);
 
         songRepository.upsertSongsWithArtistId(artistId, upsertSongs);
     }
 
-    private Map<String, SongProjection> getConfetiSongMapByArtistId(String artistId) {
-        return songRepository.findAllSongByArtistId(artistId).stream()
-            .collect(Collectors.toMap(SongProjection::getId, Function.identity()));
+    private Map<String, ConfetiSong> getConfetiSongMapByArtistId(String artistId) {
+        return songRepository.findAllConfetiSongsByArtistId(artistId).stream()
+            .collect(Collectors.toMap(ConfetiSong::getId, Function.identity()));
     }
 
     private List<ConfetiSong> getUpsertSongs(
         List<ConfetiSong> fetchedSongs,
-        Map<String, SongProjection> songMapByArtistId
+        Map<String, ConfetiSong> songMapByArtistId
     ) {
         List<ConfetiSong> upsertSongs = new ArrayList<>();
         for (ConfetiSong fetchedSong : fetchedSongs) {
-            SongProjection song = songMapByArtistId.get(fetchedSong.getId());
+            ConfetiSong song = songMapByArtistId.get(fetchedSong.getId());
             if (song == null) {
                 upsertSongs.add(fetchedSong);
                 continue;

@@ -1,12 +1,13 @@
 package confeti.confetibatchserver.domain.music.song.infra.repository;
 
 import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SongJdbcRepositoryImpl implements SongJdbcRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedJdbcTemplate;
+
     private final String BULK_UPSERT_SONGS_SQL = """
             INSERT INTO songs (id, track_name, artwork_url, artist_name, preview_url, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, NOW(), null)
+            VALUES (:id, :trackName, :artworkUrl, :artistName, :previewUrl, NOW(), null)
             ON DUPLICATE KEY UPDATE
                 track_name = VALUES(track_name),
                 artwork_url = VALUES(artwork_url),
@@ -27,41 +29,45 @@ public class SongJdbcRepositoryImpl implements SongJdbcRepository {
         """;
     private final String BULK_INSERT_ARTIST_SONGS_SQL = """
             INSERT IGNORE INTO artist_songs (song_id, artist_id)
-            VALUES (?, ?)
+            VALUES (:songId, :artistId)
+        """;
+    private final String SELECT_CONFETI_SONGS_BY_ARTIST_ID_SQL = """
+            SELECT s.id as id,
+               s.track_name as trackName,
+               s.artwork_url as artworkUrl,
+               s.artist_name as artistName,
+               s.preview_url as previewUrl
+            FROM songs as s
+            INNER JOIN artist_songs as a_s ON a_s.song_id = s.id AND a_s.artist_id = :artistId
         """;
 
     @Transactional
     public void upsertSongsWithArtistId(String artistId, List<ConfetiSong> songs) {
+        SqlParameterSource[] songParams = SqlParameterSourceUtils.createBatch(songs);
+        namedJdbcTemplate.batchUpdate(BULK_UPSERT_SONGS_SQL, songParams);
 
-        jdbcTemplate.batchUpdate(BULK_UPSERT_SONGS_SQL, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ConfetiSong song = songs.get(i);
-                ps.setString(1, song.getId());
-                ps.setString(2, song.getTrackName());
-                ps.setString(3, song.getArtworkUrl());
-                ps.setString(4, song.getArtistName());
-                ps.setString(5, song.getPreviewUrl());
-            }
+        MapSqlParameterSource[] artistSongParams = songs.stream()
+            .map(song -> new MapSqlParameterSource()
+                .addValue("songId", song.getId())
+                .addValue("artistId", artistId))
+            .toArray(MapSqlParameterSource[]::new);
+        namedJdbcTemplate.batchUpdate(BULK_INSERT_ARTIST_SONGS_SQL, artistSongParams);
+    }
 
-            @Override
-            public int getBatchSize() {
-                return songs.size();
-            }
-        });
+    @Override
+    public List<ConfetiSong> findAllConfetiSongsByArtistId(String artistId) {
+        Map<String, Object> params = Map.of("artistId", artistId);
 
-        jdbcTemplate.batchUpdate(BULK_INSERT_ARTIST_SONGS_SQL, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ConfetiSong song = songs.get(i);
-                ps.setString(1, song.getId());
-                ps.setString(2, artistId);
-            }
-
-            @Override
-            public int getBatchSize() {
-                return songs.size();
-            }
-        });
+        return namedJdbcTemplate.query(
+            SELECT_CONFETI_SONGS_BY_ARTIST_ID_SQL,
+            params,
+            (rs, rowNum) -> ConfetiSong.builder()
+                .id(rs.getString("id"))
+                .trackName(rs.getString("trackName"))
+                .artworkUrl(rs.getString("artworkUrl"))
+                .artistName(rs.getString("artistName"))
+                .previewUrl(rs.getString("previewUrl"))
+                .build()
+        );
     }
 }
