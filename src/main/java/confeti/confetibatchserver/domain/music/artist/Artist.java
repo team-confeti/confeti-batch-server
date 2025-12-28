@@ -7,7 +7,6 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,12 +52,6 @@ public class Artist {
             .name(artist.getName())
             .artworkUrl(artist.getProfileUrl())
             .build();
-    }
-
-    public boolean isDifferentData(ConfetiArtist artist) {
-        return !Objects.equals(id, artist.getId())
-            || !Objects.equals(name, artist.getName())
-            || !Objects.equals(artworkUrl, artist.getProfileUrl());
     }
 
 }
