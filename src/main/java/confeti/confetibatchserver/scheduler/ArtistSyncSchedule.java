@@ -4,7 +4,8 @@ import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 
 import confeti.confetibatchserver.domain.batch.jobconfig.JobConfig;
 import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigService;
-import confeti.confetibatchserver.job.artistsongsync.ArtistSyncJobConfig;
+import confeti.confetibatchserver.job.JobInfo;
+import confeti.confetibatchserver.job.artistsongsync.ArtistSongSyncJobConfig;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;
@@ -23,19 +24,20 @@ public class ArtistSyncSchedule {
     private final JobConfigService jobConfigService;
 
     @Scheduled(
-        cron = "${schedules.artist-sync.cron}",
-        zone = "${schedules.artist-sync.zone}"
+        cron = "${schedules.artist-song-sync.cron}",
+        zone = "${schedules.artist-song-sync.zone}"
     )
-    public void runArtistSyncJob() throws Exception {
-        JobConfig jobConfig = jobConfigService.getByJobInfo(ARTIST_SONG_SYNC_JOB);
+    public void runArtistSongSyncJob() throws Exception {
+        JobInfo jobInfo = ARTIST_SONG_SYNC_JOB;
+        JobConfig jobConfig = jobConfigService.getByJobInfo(jobInfo);
         if (jobConfig.isActive()) {
             String date = LocalDate.now().toString();
 
             JobParameters jobParameters = new JobParametersBuilder()
-                .addString(ArtistSyncJobConfig.JOB_PARAMETER_DATE, date)
+                .addString(ArtistSongSyncJobConfig.JOB_PARAMETER_DATE, date)
                 .toJobParameters();
 
-            jobLauncher.run(jobRegistry.getJob(ARTIST_SONG_SYNC_JOB.getJobName()), jobParameters);
+            jobLauncher.run(jobRegistry.getJob(jobInfo.getJobName()), jobParameters);
         }
     }
 

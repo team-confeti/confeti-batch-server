@@ -38,7 +38,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class ArtistSyncJobConfig {
+public class ArtistSongSyncJobConfig {
 
     public static final String JOB_PARAMETER_DATE = "requestDate";
 
