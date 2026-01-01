@@ -8,4 +8,8 @@ public interface RelatedArtistJdbcRepository {
 
     List<ConfetiRelatedArtist> findAllConfetiRelatedArtistIdsByArtistIds(
         Collection<String> artistIds);
+
+    void bulkInsert(Collection<ConfetiRelatedArtist> relatedArtists);
+
+    void bulkDelete(Collection<ConfetiRelatedArtist> relatedArtists);
 }
