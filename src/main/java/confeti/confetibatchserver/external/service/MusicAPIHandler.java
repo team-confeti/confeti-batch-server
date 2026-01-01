@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface MusicAPIHandler {
 
-    List<ConfetiSong> getAllSongsByArtistId(String artistId);
+    List<ConfetiSong> getAllSongsByArtistId(final String artistId);
 
-    List<ConfetiArtist> getArtistsByIds(Collection<String> artistIds);
+    List<ConfetiArtist> getArtistsByIds(final Collection<String> artistIds);
+
+    List<String> getAllRelatedArtistIds(final String artistId);
+
 }
