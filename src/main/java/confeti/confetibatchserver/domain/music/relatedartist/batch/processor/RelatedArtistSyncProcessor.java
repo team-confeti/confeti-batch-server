@@ -1,4 +1,4 @@
-package confeti.confetibatchserver.job.relatedartistsync.processor;
+package confeti.confetibatchserver.domain.music.relatedartist.batch.processor;
 
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
 import confeti.confetibatchserver.global.exectpion.ArtistIdAwareException;

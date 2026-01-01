@@ -1,4 +1,4 @@
-package confeti.confetibatchserver.job.artistsongsync.writer;
+package confeti.confetibatchserver.domain.music.song.batch.writer;
 
 import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
