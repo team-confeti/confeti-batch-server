@@ -18,12 +18,6 @@ public class BulkRelatedArtistUpsertWriter implements ItemWriter<ArtistRelations
     public void write(Chunk<? extends ArtistRelations> chunk) throws Exception {
         @SuppressWarnings("unchecked")
         List<ArtistRelations> relations = (List<ArtistRelations>) chunk.getItems();
-
-        try {
-            musicSyncFacade.reconcileRelatedArtists(relations);
-        } catch (Exception e) {
-            log.error("Error to sync RelatedArtist in writer ", e);
-        }
-
+        musicSyncFacade.reconcileRelatedArtists(relations);
     }
 }

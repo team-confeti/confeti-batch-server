@@ -14,6 +14,7 @@ import confeti.confetibatchserver.job.relatedartistsync.dto.ArtistRelations;
 import confeti.confetibatchserver.job.relatedartistsync.processor.RelatedArtistSyncProcessor;
 import confeti.confetibatchserver.job.relatedartistsync.writer.BulkRelatedArtistUpsertWriter;
 import confeti.confetibatchserver.logger.JobLoggingListener;
+import confeti.confetibatchserver.logger.RelatedArtistSyncSkipLogger;
 import feign.RetryableException;
 import java.io.IOException;
 import java.util.concurrent.Future;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -59,7 +61,8 @@ public class RelatedArtistSyncJobConfig {
     public Step relatedArtistSyncStep(
         ItemReader<String> relatedArtistStepReader,
         AsyncItemProcessor<String, ArtistRelations> relatedArtistProcessor,
-        AsyncItemWriter<ArtistRelations> artistSongSyncWriter
+        AsyncItemWriter<ArtistRelations> artistSongSyncWriter,
+        RelatedArtistSyncSkipLogger relatedArtistSyncSkipLogger
     ) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(RELATED_ARTIST_SYNC_STEP);
 
@@ -72,7 +75,11 @@ public class RelatedArtistSyncJobConfig {
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
             .retry(IOException.class)
+            .noRetry(NotFoundException.class)
+            .skip(Exception.class)
             .retryLimit(3)
+            .skipLimit(100)
+            .listener(relatedArtistSyncSkipLogger)
             .build();
     }
 

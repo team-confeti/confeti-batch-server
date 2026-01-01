@@ -1,6 +1,7 @@
 package confeti.confetibatchserver.job.relatedartistsync.processor;
 
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
+import confeti.confetibatchserver.global.exectpion.ArtistIdAwareException;
 import confeti.confetibatchserver.job.relatedartistsync.dto.ArtistRelations;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,7 @@ public class RelatedArtistSyncProcessor implements ItemProcessor<String, ArtistR
             List<String> allRelatedArtistIds = musicAPIHandler.getAllRelatedArtistIds(item);
             return new ArtistRelations(item, allRelatedArtistIds);
         } catch (Exception e) {
-            log.error("Error to sync RelatedArtist in processor,  artist id: " + item,
-                e.getMessage());
-            return null;
+            throw new ArtistIdAwareException(item, e);
         }
     }
 }
