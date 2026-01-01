@@ -4,9 +4,11 @@ import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.job.relatedartistsync.dto.ArtistRelations;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
+@Slf4j
 @RequiredArgsConstructor
 public class BulkRelatedArtistUpsertWriter implements ItemWriter<ArtistRelations> {
 
@@ -16,6 +18,12 @@ public class BulkRelatedArtistUpsertWriter implements ItemWriter<ArtistRelations
     public void write(Chunk<? extends ArtistRelations> chunk) throws Exception {
         @SuppressWarnings("unchecked")
         List<ArtistRelations> relations = (List<ArtistRelations>) chunk.getItems();
-        musicSyncFacade.reconcileRelatedArtists(relations);
+
+        try {
+            musicSyncFacade.reconcileRelatedArtists(relations);
+        } catch (Exception e) {
+            log.error("Error to sync RelatedArtist in writer ", e);
+        }
+
     }
 }
