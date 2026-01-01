@@ -46,8 +46,8 @@ public class RelatedArtistJdbcRepositoryImpl implements RelatedArtistJdbcReposit
             params,
             (rs, rowNum) -> ConfetiRelatedArtist.builder()
                 .id(rs.getLong("id"))
-                .artistId(rs.getString("artist_id"))
-                .relatedArtistId(rs.getString("related_artist_id"))
+                .artistId(rs.getString("artistId"))
+                .relatedArtistId(rs.getString("relatedArtistId"))
                 .build());
     }
 
