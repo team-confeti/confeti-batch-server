@@ -6,7 +6,6 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -27,7 +26,7 @@ public class TopArtist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "artist_id", unique = true)
+    @Column(name = "artist_id", nullable = false, unique = true)
     private String artistId;
 
     @Column(nullable = false, unique = true)
@@ -39,4 +38,13 @@ public class TopArtist {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private TopArtist(String artistId, int ranking) {
+        this.artistId = artistId;
+        this.ranking = ranking;
+    }
+
+    public static TopArtist create(String artistId, int ranking) {
+        return new TopArtist(artistId, ranking);
+    }
 }
