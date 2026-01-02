@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum JobInfo {
 
     ARTIST_SONG_SYNC_JOB("artistSongSyncJob"),
-    TOP_ARTIST_SYNC("topArtistSync");
+    TOP_ARTIST_SYNC_JOB("topArtistSyncJob");
 
     private final String jobName;
 }

@@ -1,6 +1,6 @@
 package confeti.confetibatchserver.scheduler;
 
-import static confeti.confetibatchserver.job.JobInfo.TOP_ARTIST_SYNC;
+import static confeti.confetibatchserver.job.JobInfo.TOP_ARTIST_SYNC_JOB;
 
 import confeti.confetibatchserver.domain.batch.jobconfig.JobConfig;
 import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigService;
@@ -32,7 +32,7 @@ public class TopArtistSyncSchedule {
         zone = "${schedules.top-artist-sync.zone}"
     )
     public void runTopArtistSync() {
-        JobConfig jobConfig = jobConfigService.getByJobInfo(TOP_ARTIST_SYNC);
+        JobConfig jobConfig = jobConfigService.getByJobInfo(TOP_ARTIST_SYNC_JOB);
         if (!jobConfig.isActive()) {
             log.info("TopArtist sync is disabled");
             return;

@@ -1,6 +1,6 @@
 package confeti.confetibatchserver.scheduler;
 
-import static confeti.confetibatchserver.job.JobInfo.TOP_ARTIST_SYNC;
+import static confeti.confetibatchserver.job.JobInfo.TOP_ARTIST_SYNC_JOB;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -51,7 +51,7 @@ class TopArtistSyncScheduleTest {
         AppleMusicMusicResponse song1 = createMusicResponse("song1", List.of("artist1", "artist2"));
         AppleMusicMusicResponse song2 = createMusicResponse("song2", List.of("artist2", "artist3"));
 
-        given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC)).willReturn(jobConfig);
+        given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC_JOB)).willReturn(jobConfig);
         given(jobConfig.isActive()).willReturn(true);
         given(musicAPIHandler.getTopSongs(anyInt()))
             .willReturn(List.of(song1, song2));
@@ -73,7 +73,7 @@ class TopArtistSyncScheduleTest {
     @DisplayName("TopArtist 동기화 - 비활성화 시 실행 안 함")
     void runTopArtistSync_Disabled() {
         // given
-        given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC)).willReturn(jobConfig);
+        given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC_JOB)).willReturn(jobConfig);
         given(jobConfig.isActive()).willReturn(false);
 
         // when
@@ -88,7 +88,7 @@ class TopArtistSyncScheduleTest {
     @DisplayName("TopArtist 동기화 - 빈 응답 처리")
     void runTopArtistSync_EmptyResponse() {
         // given
-        given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC)).willReturn(jobConfig);
+        given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC_JOB)).willReturn(jobConfig);
         given(jobConfig.isActive()).willReturn(true);
         given(musicAPIHandler.getTopSongs(anyInt()))
             .willReturn(List.of());
