@@ -4,6 +4,7 @@ import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
 import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistsResponse;
+import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartResponse;
 import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartSongResponse;
 import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartsResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicResponse;
