@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum JobInfo {
 
-    ARTIST_SONG_SYNC_JOB("artistSongSyncJob");
+    ARTIST_SONG_SYNC_JOB("artistSongSyncJob"),
+    TOP_ARTIST_SYNC_JOB("topArtistSyncJob");
 
     private final String jobName;
 }

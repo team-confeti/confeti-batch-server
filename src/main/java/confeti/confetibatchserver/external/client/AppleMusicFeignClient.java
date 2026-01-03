@@ -3,6 +3,7 @@ package confeti.confetibatchserver.external.client;
 import confeti.confetibatchserver.config.AppleMusicFeignConfig;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistResponse;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistsResponse;
+import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartsResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicArtistMusicsResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicsResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -59,6 +60,12 @@ public interface AppleMusicFeignClient {
     @GetMapping("/songs")
     AppleMusicMusicsResponse getSongsByIds(
         @RequestParam String ids
+    );
+
+    @GetMapping("/charts")
+    AppleMusicChartsResponse getCharts(
+        @RequestParam String types,
+        @RequestParam String limit
     );
 
 }
