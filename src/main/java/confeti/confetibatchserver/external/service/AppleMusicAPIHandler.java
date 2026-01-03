@@ -58,10 +58,10 @@ public class AppleMusicAPIHandler implements MusicAPIHandler {
             SONGS_TYPE, String.valueOf(limit));
 
         return Optional.ofNullable(chartsResponse.results())
-            .map(results -> results.songs())
-            .filter(songs -> !songs.isEmpty())
-            .map(songs -> songs.get(0))
-            .map(AppleMusicChartSongResponse::data)
+            .map(AppleMusicChartResponse::songs)  
+            .filter(songs -> !songs.isEmpty())  
+            .map(List::getFirst)  
+            .map(AppleMusicChartSongResponse::data)  
             .orElse(Collections.emptyList());
     }
 
