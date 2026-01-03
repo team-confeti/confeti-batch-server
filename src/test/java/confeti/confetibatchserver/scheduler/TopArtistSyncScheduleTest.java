@@ -17,7 +17,6 @@ import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicRelat
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicResponse;
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +54,7 @@ class TopArtistSyncScheduleTest {
         given(jobConfig.isActive()).willReturn(true);
         given(musicAPIHandler.getTopSongs(anyInt()))
             .willReturn(List.of(song1, song2));
-        given(musicAPIHandler.getSongsByIds(Set.of("song1", "song2")))
+        given(musicAPIHandler.getSongsByIds(List.of("song1", "song2")))
             .willReturn(List.of(song1, song2));
 
         // when
@@ -92,7 +91,7 @@ class TopArtistSyncScheduleTest {
         given(jobConfig.isActive()).willReturn(true);
         given(musicAPIHandler.getTopSongs(anyInt()))
             .willReturn(List.of());
-        given(musicAPIHandler.getSongsByIds(Set.of()))
+        given(musicAPIHandler.getSongsByIds(List.of()))
             .willReturn(List.of());
 
         // when

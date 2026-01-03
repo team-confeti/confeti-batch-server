@@ -7,10 +7,7 @@ import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigSe
 import confeti.confetibatchserver.domain.music.topartist.application.TopArtistService;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicResponse;
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -43,16 +40,15 @@ public class TopArtistSyncSchedule {
         try {
             List<AppleMusicMusicResponse> topSongs = musicAPIHandler.getTopSongs(TOP_SONGS_FETCH_SIZE);
 
-            Set<String> songIds = topSongs.stream()
+            List<String> songIds = topSongs.stream()
                 .map(AppleMusicMusicResponse::id)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .toList();
 
             List<AppleMusicMusicResponse> songsWithArtists = musicAPIHandler.getSongsByIds(songIds);
 
             List<String> artistIds = songsWithArtists.stream()
                 .flatMap(song -> song.getArtistIds().stream())
-                .collect(Collectors.toCollection(LinkedHashSet::new))
-                .stream()
+                .distinct()
                 .toList();
 
             topArtistService.refresh(artistIds);
