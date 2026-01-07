@@ -1,10 +1,10 @@
-package confeti.confetibatchserver.job.artistsongsync.reader;
+package confeti.confetibatchserver.domain.music.artist.batch.reader;
 
-import static confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider.CONFETI_ARTIST_MAPPER;
+import static confeti.confetibatchserver.domain.music.artist.batch.query.ArtistQueryProvider.CONFETI_ARTIST_MAPPER;
 
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
+import confeti.confetibatchserver.domain.music.artist.batch.query.ArtistQueryProvider;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
-import confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider;
 import javax.sql.DataSource;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 

@@ -1,6 +1,9 @@
 schedules:
-  artist-sync:
+  artist-song-sync:
     cron: "0 0 4 * * *"
+    zone: "Asia/Seoul"
+  related-artist-sync:
+    cron: "0 0 3 * * 3"
     zone: "Asia/Seoul"
   top-artist-sync:
     cron: "0 0 5 * * *"

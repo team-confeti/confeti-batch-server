@@ -29,18 +29,11 @@ public interface AppleMusicFeignClient {
         @RequestParam String ids
     );
 
-    @GetMapping("/artists/{id}/view/{view}")
-    @Deprecated
-    AppleMusicArtistsResponse getRelatedArtistsById(
-        @PathVariable String id,
-        @PathVariable String view,
-        @RequestParam String limit
-    );
-
     @GetMapping("/artists/{id}/view/similar-artists")
     AppleMusicArtistsResponse getRelatedArtistsById(
         @PathVariable String id,
-        @RequestParam String limit
+        @RequestParam String limit,
+        @RequestParam String offset
     );
 
     @GetMapping("/artists/{id}/view/top-songs")

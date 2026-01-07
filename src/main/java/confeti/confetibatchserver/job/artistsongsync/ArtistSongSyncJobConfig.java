@@ -8,12 +8,12 @@ import static confeti.confetibatchserver.job.StepInfo.ARTIST_SYNC_STEP;
 import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
+import confeti.confetibatchserver.domain.music.artist.batch.query.ArtistQueryProvider;
+import confeti.confetibatchserver.domain.music.artist.batch.reader.ArtistIdReader;
+import confeti.confetibatchserver.domain.music.artist.batch.reader.ConfetiArtistReader;
+import confeti.confetibatchserver.domain.music.artist.batch.writer.BulkArtistSongUpsertWriter;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
-import confeti.confetibatchserver.job.artistsongsync.query.ArtistQueryProvider;
-import confeti.confetibatchserver.job.artistsongsync.reader.ArtistIdReader;
-import confeti.confetibatchserver.job.artistsongsync.reader.ConfetiArtistReader;
-import confeti.confetibatchserver.job.artistsongsync.writer.BulkArtistSongUpsertWriter;
-import confeti.confetibatchserver.job.artistsongsync.writer.BulkArtistUpsertWriter;
+import confeti.confetibatchserver.domain.music.song.batch.writer.BulkArtistUpsertWriter;
 import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class ArtistSyncJobConfig {
+public class ArtistSongSyncJobConfig {
 
     public static final String JOB_PARAMETER_DATE = "requestDate";
 

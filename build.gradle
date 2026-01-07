@@ -34,6 +34,9 @@ dependencies {
     // Spring Batch Core
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 
+    // Spring Batch Integration
+    implementation 'org.springframework.batch:spring-batch-integration'
+
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 

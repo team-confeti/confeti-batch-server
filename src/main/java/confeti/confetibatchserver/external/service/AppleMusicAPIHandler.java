@@ -24,6 +24,7 @@ public class AppleMusicAPIHandler implements MusicAPIHandler {
     private final static String QUERY_PARAMETER_IDS_DELIMITER = ",";
     private final static String SONGS_TYPE = "songs";
     private final static int ARTIST_TOP_SONG_FETCH_SIZE = 100;
+    private final static int RELATED_ARTIST_FETCH_SIZE = 100;
 
     private final AppleMusicFeignClient appleMusicFeignClient;
 
@@ -54,15 +55,35 @@ public class AppleMusicAPIHandler implements MusicAPIHandler {
     }
 
     @Override
+    public List<String> getAllRelatedArtistIds(String artistId) {
+        int offset = 0;
+        String next = null;
+        List<String> relatedArtistIds = new ArrayList<>();
+        do {
+            AppleMusicArtistsResponse relatedArtists = appleMusicFeignClient.getRelatedArtistsById(
+                artistId, String.valueOf(RELATED_ARTIST_FETCH_SIZE), String.valueOf(offset));
+            next = relatedArtists.next();
+
+            if (relatedArtistIds.isEmpty()) { // 사이즈 초기화
+                relatedArtistIds = new ArrayList<>(relatedArtists.data().size());
+            }
+            relatedArtistIds.addAll(relatedArtists.toArtistIds());
+            offset += RELATED_ARTIST_FETCH_SIZE;
+        } while (next != null);
+
+        return relatedArtistIds;
+    }
+
+    @Override
     public List<AppleMusicMusicResponse> getTopSongs(int limit) {
         AppleMusicChartsResponse chartsResponse = appleMusicFeignClient.getCharts(
             SONGS_TYPE, String.valueOf(limit));
 
         return Optional.ofNullable(chartsResponse.results())
-            .map(AppleMusicChartResponse::songs)  
-            .filter(songs -> !songs.isEmpty())  
-            .map(List::getFirst)  
-            .map(AppleMusicChartSongResponse::data)  
+            .map(AppleMusicChartResponse::songs)
+            .filter(songs -> !songs.isEmpty())
+            .map(List::getFirst)
+            .map(AppleMusicChartSongResponse::data)
             .orElse(Collections.emptyList());
     }
 

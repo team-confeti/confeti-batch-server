@@ -4,12 +4,19 @@ import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.List;
 
 public record AppleMusicArtistsResponse(
+    String next,
     List<AppleMusicArtistResponse> data
 ) {
 
     public List<ConfetiArtist> toConfetiArtists() {
         return data.stream()
             .map(AppleMusicArtistResponse::toConfetiArtist)
+            .toList();
+    }
+
+    public List<String> toArtistIds() {
+        return data.stream()
+            .map(AppleMusicArtistResponse::id)
             .toList();
     }
 }
