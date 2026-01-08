@@ -1,11 +1,12 @@
 package confeti.confetibatchserver.external.client;
 
-import confeti.confetibatchserver.config.AppleMusicFeignConfig;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistResponse;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistsResponse;
 import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartsResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicArtistMusicsResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicsResponse;
+import confeti.confetibatchserver.global.annotation.AppleMusicLateLimit;
+import confeti.confetibatchserver.global.config.AppleMusicFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
     path = "${apple-music.api.path}",
     configuration = AppleMusicFeignConfig.class
 )
+@AppleMusicLateLimit
 public interface AppleMusicFeignClient {
 
     @GetMapping("/artists/{id}")
