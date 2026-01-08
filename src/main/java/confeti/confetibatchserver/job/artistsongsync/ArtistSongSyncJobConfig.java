@@ -1,6 +1,6 @@
 package confeti.confetibatchserver.job.artistsongsync;
 
-import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;
+import static confeti.confetibatchserver.global.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;
 import static confeti.confetibatchserver.job.JobInfo.ARTIST_SONG_SYNC_JOB;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SONG_SYNC_STEP;
 import static confeti.confetibatchserver.job.StepInfo.ARTIST_SYNC_STEP;

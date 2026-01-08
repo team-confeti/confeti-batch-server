@@ -1,7 +1,7 @@
 package confeti.confetibatchserver.domain.music.artist.batch.writer;
 
 
-import static confeti.confetibatchserver.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;
+import static confeti.confetibatchserver.global.config.ThreadPoolConfig.MUSIC_SYNC_EXECUTOR;
 
 import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import java.util.List;
