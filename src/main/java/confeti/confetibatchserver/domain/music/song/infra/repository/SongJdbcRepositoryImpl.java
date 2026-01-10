@@ -1,6 +1,7 @@
 package confeti.confetibatchserver.domain.music.song.infra.repository;
 
 import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
+import confeti.confetibatchserver.job.artistsongsync.dto.ArtistIdWithSongs;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,16 +41,25 @@ public class SongJdbcRepositoryImpl implements SongJdbcRepository {
             INNER JOIN artist_songs as a_s ON a_s.song_id = s.id AND a_s.artist_id = :artistId
         """;
 
-    @Transactional
-    public void upsertSongsWithArtistId(String artistId, List<ConfetiSong> songs) {
+    @Override
+    public void upsertSongsWithArtistId(List<ArtistIdWithSongs> artistIdWithSongs) {
+        List<ConfetiSong> songs = artistIdWithSongs.stream()
+            .flatMap(artistIdWithSong -> artistIdWithSong.songs().stream())
+            .toList();
         SqlParameterSource[] songParams = SqlParameterSourceUtils.createBatch(songs);
+
         namedJdbcTemplate.batchUpdate(BULK_UPSERT_SONGS_SQL, songParams);
 
-        MapSqlParameterSource[] artistSongParams = songs.stream()
-            .map(song -> new MapSqlParameterSource()
-                .addValue("songId", song.getId())
-                .addValue("artistId", artistId))
+        MapSqlParameterSource[] artistSongParams = artistIdWithSongs.stream()
+            .flatMap(artistIdWithSong ->
+                artistIdWithSong.songs().stream()
+                    .map(song -> new MapSqlParameterSource()
+                        .addValue("songId", song.getId())
+                        .addValue("artistId", artistIdWithSong.artistId())
+                    )
+            )
             .toArray(MapSqlParameterSource[]::new);
+
         namedJdbcTemplate.batchUpdate(BULK_INSERT_ARTIST_SONGS_SQL, artistSongParams);
     }
 
