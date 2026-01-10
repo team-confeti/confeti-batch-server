@@ -14,6 +14,9 @@ public class RelatedArtistSyncProcessor implements ItemProcessor<String, ArtistR
 
     private final MusicAPIHandler musicAPIHandler;
 
+    /**
+     * @param item Artist ID
+     */
     @Override
     public ArtistRelations process(String item) throws Exception {
         try {

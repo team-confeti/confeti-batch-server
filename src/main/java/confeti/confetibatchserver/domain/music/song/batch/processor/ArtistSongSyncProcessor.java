@@ -18,6 +18,9 @@ public class ArtistSongSyncProcessor implements ItemProcessor<String, ArtistIdWi
     private final MusicAPIHandler musicAPIHandler;
     private final SongService songService;
 
+    /**
+     * @param item Artist ID
+     */
     @Override
     public ArtistIdWithSongs process(String item) throws Exception {
         try {
