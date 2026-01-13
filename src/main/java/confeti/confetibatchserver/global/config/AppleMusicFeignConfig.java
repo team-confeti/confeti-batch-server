@@ -1,4 +1,4 @@
-package confeti.confetibatchserver.config;
+package confeti.confetibatchserver.global.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

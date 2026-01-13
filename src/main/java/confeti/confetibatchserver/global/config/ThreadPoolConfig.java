@@ -1,4 +1,4 @@
-package confeti.confetibatchserver.config;
+package confeti.confetibatchserver.global.config;
 
 import java.util.concurrent.ThreadPoolExecutor;
 import org.springframework.context.annotation.Bean;
