@@ -12,10 +12,12 @@ spring:
     url: jdbc:mysql://${db-secrets.host}:${db-secrets.port}/${db-secrets.dbname}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&rewriteBatchedStatements=true
     username: ${db-secrets.username}
     password: ${db-secrets.password}
+    hikari:
+      maximum-pool-size: 20
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: false
     open-in-view: false
     properties:
@@ -26,7 +28,7 @@ spring:
       names: ${job.name:NONE}
       enabled: false # disable auto start when application run
     jdbc:
-      initialize-schema: always # TODO switch to never
+      initialize-schema: never
       schema: classpath:org/springframework/batch/core/schema-mysql.sql
 
   servlet:
@@ -35,12 +37,12 @@ spring:
       max-file-size: 30MB
       max-request-size: 30MB
 
-
 logging:
   level:
-    org.sopt.confeti: info
-    org.springframework.data.elasticsearch: info
-    org.springframework.web: info
+    root: INFO # default
+    org.sopt.confeti: INFO
+    org.springframework.web: INFO
+    org.springframework.batch: INFO
 
 ---
 server:
@@ -58,9 +60,3 @@ spring:
   config:
     activate:
       on-profile: green
-
-logging:
-  level:
-    org.springframework:
-      batch: INFO
-      jdbc: INFO

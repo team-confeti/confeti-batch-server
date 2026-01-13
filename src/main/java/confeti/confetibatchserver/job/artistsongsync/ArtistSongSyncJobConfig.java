@@ -11,13 +11,18 @@ import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfig
 import confeti.confetibatchserver.domain.music.artist.batch.query.ArtistQueryProvider;
 import confeti.confetibatchserver.domain.music.artist.batch.reader.ArtistIdReader;
 import confeti.confetibatchserver.domain.music.artist.batch.reader.ConfetiArtistReader;
-import confeti.confetibatchserver.domain.music.artist.batch.writer.BulkArtistSongUpsertWriter;
+import confeti.confetibatchserver.domain.music.artist.batch.writer.BulkArtistUpsertWriter;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
-import confeti.confetibatchserver.domain.music.song.batch.writer.BulkArtistUpsertWriter;
+import confeti.confetibatchserver.domain.music.song.application.SongService;
+import confeti.confetibatchserver.domain.music.song.batch.processor.ArtistSongSyncProcessor;
+import confeti.confetibatchserver.domain.music.song.batch.writer.BulkArtistSongUpsertWriter;
+import confeti.confetibatchserver.external.service.MusicAPIHandler;
+import confeti.confetibatchserver.job.artistsongsync.dto.ArtistIdWithSongs;
+import confeti.confetibatchserver.logger.ArtistSongSyncSkipLogger;
 import confeti.confetibatchserver.logger.JobLoggingListener;
 import feign.RetryableException;
 import java.io.IOException;
-import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +33,15 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.integration.async.AsyncItemProcessor;
+import org.springframework.batch.integration.async.AsyncItemWriter;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Slf4j
@@ -61,19 +70,24 @@ public class ArtistSongSyncJobConfig {
     @JobScope
     public Step artistSongSyncStep(
         ItemReader<String> artistIdReader,
-        ItemWriter<String> artistSongSyncWriter
+        AsyncItemProcessor<String, ArtistIdWithSongs> itemProcessor,
+        AsyncItemWriter<ArtistIdWithSongs> itemWriter
     ) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(ARTIST_SONG_SYNC_STEP);
 
         return new StepBuilder(stepConfig.getStepInfo().getName(), jobRepository)
-            .<String, String>chunk(stepConfig.getChunkSize(),
+            .<String, Future<ArtistIdWithSongs>>chunk(stepConfig.getChunkSize(),
                 platformTransactionManager)
             .reader(artistIdReader)
-            .writer(artistSongSyncWriter)
+            .processor(itemProcessor)
+            .writer(itemWriter)
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
             .retry(IOException.class)
+            .retry(TransientDataAccessException.class)
             .retryLimit(3)
+            .skip(Exception.class)
+            .listener(new ArtistSongSyncSkipLogger())
             .build();
     }
 
@@ -93,6 +107,7 @@ public class ArtistSongSyncJobConfig {
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
             .retry(IOException.class)
+            .retry(TransientDataAccessException.class)
             .retryLimit(3)
             .build();
     }
@@ -112,6 +127,18 @@ public class ArtistSongSyncJobConfig {
     }
 
     @Bean
+    public AsyncItemProcessor<String, ArtistIdWithSongs> asyncArtistSongSyncProcessor(
+        MusicAPIHandler musicAPIHandler,
+        SongService songService,
+        @Qualifier(MUSIC_SYNC_EXECUTOR) TaskExecutor executor
+    ) {
+        AsyncItemProcessor<String, ArtistIdWithSongs> asyncItemProcessor = new AsyncItemProcessor<>();
+        asyncItemProcessor.setDelegate(new ArtistSongSyncProcessor(musicAPIHandler, songService));
+        asyncItemProcessor.setTaskExecutor(executor);
+        return asyncItemProcessor;
+    }
+
+    @Bean
     public ItemWriter<ConfetiArtist> artistSyncWriter(
         MusicSyncFacade musicSyncFacade
     ) {
@@ -119,11 +146,12 @@ public class ArtistSongSyncJobConfig {
     }
 
     @Bean
-    public ItemWriter<String> artistSongSyncWriter(
-        MusicSyncFacade musicSyncFacade,
-        @Qualifier(MUSIC_SYNC_EXECUTOR) Executor executor
+    public AsyncItemWriter<ArtistIdWithSongs> artistSongSyncWriter(
+        MusicSyncFacade musicSyncFacade
     ) {
-        return new BulkArtistSongUpsertWriter(musicSyncFacade, executor);
+        AsyncItemWriter<ArtistIdWithSongs> itemWriter = new AsyncItemWriter<>();
+        itemWriter.setDelegate(new BulkArtistSongUpsertWriter(musicSyncFacade));
+        return itemWriter;
     }
 
 }

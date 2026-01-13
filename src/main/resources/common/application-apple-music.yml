@@ -1,6 +1,6 @@
 apple-music:
   api:
-    host: https://external.confeti.xyz
+    host: https://external.confeti.asia
     path: /apple-music-api
     endpoints:
       base-url: https://api.music.apple.com
@@ -38,7 +38,7 @@ spring:
       on-profile: prod
 apple-music:
   api:
-    host: https://external.confeti.xyz
+    host: https://external.confeti.asia
     path: /apple-music-api
     rate-limit: 30.0
 
