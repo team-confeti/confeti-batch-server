@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Slf4j
@@ -84,10 +84,10 @@ public class ArtistSongSyncJobConfig {
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
             .retry(IOException.class)
-            .noRetry(NotFoundException.class)
+            .retry(TransientDataAccessException.class)
+            .retryLimit(3)
             .skip(Exception.class)
             .listener(new ArtistSongSyncSkipLogger())
-            .retryLimit(3)
             .build();
     }
 
@@ -107,6 +107,7 @@ public class ArtistSongSyncJobConfig {
             .faultTolerant()
             .retry(RetryableException.class)     // Feign의 재시도 가능 예외
             .retry(IOException.class)
+            .retry(TransientDataAccessException.class)
             .retryLimit(3)
             .build();
     }
