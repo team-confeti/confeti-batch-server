@@ -65,6 +65,9 @@ dependencies {
 
     // Secret Manager
     implementation "io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:${awspringVersion}"
+
+    // Rate limit
+    implementation 'com.google.guava:guava:33.4.8-jre'
 }
 
 dependencyManagement {
