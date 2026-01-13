@@ -28,7 +28,7 @@ spring:
       names: ${job.name:NONE}
       enabled: false # disable auto start when application run
     jdbc:
-      initialize-schema: never # TODO switch to never
+      initialize-schema: never
       schema: classpath:org/springframework/batch/core/schema-mysql.sql
 
   servlet:
