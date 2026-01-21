@@ -5,8 +5,9 @@ spring:
 
 notification:
   slack:
-    batch:
-      url: ${notification-secrets.slack.batch.url}
+    job:
+      failed:
+        url: ${notification-secrets.slack.batch.job.failed.url}
 
 ---
 spring:
@@ -16,6 +17,7 @@ spring:
 
 notification:
   slack:
-    batch:
-      url: ''
+    job:
+      failed:
+        url: ${notification-secrets.slack.batch.job.failed.url:확인필요}
 

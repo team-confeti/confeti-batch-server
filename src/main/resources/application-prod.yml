@@ -3,6 +3,7 @@ spring:
     import:
       - classpath:common/application-common.yml
       - aws-secretsmanager:/confeti-api/prod/database?prefix=db-secrets.
+      - aws-secretsmanager:/confeti-api/prod/notification?prefix=notification-secrets.
 
   application:
     name: confeti-batch-prod

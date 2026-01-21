@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Profile(
     value = {"prod"}
 )
-public class SlackBatchNotificationUrl implements SlackNotificationUrl {
+public class SlackJobFailedNotificationUrl implements SlackNotificationUrl {
 
-    @Value("${notification.slack.batch.url}")
+    @Value("${notification.slack.job.failed.url}")
     private String webhookUrl;
 
     @Override
