@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+notification:
+  slack:
+    batch:
+      url: ${notification-secrets.slack.batch.url}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+notification:
+  slack:
+    batch:
+      url: ''
+
