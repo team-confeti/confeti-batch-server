@@ -49,10 +49,13 @@ public class RelatedArtistSyncJobConfig {
     private final ArtistQueryProvider artistQueryProvider;
 
     @Bean
-    public Job relatedArtistSyncJob(Step relatedArtistSyncStep) {
+    public Job relatedArtistSyncJob(
+        Step relatedArtistSyncStep,
+        JobLoggingListener jobLoggingListener
+    ) {
         return new JobBuilder(RELATED_ARTIST_SYNC_JOB.getJobName(), jobRepository)
             .start(relatedArtistSyncStep)
-            .listener(new JobLoggingListener())
+            .listener(jobLoggingListener)
             .build();
     }
 

@@ -58,11 +58,15 @@ public class ArtistSongSyncJobConfig {
     private final ArtistQueryProvider artistQueryProvider;
 
     @Bean
-    public Job artistSongSyncJob(Step artistSyncStep, Step artistSongSyncStep) {
+    public Job artistSongSyncJob(
+        Step artistSyncStep,
+        Step artistSongSyncStep,
+        JobLoggingListener jobLoggingListener
+    ) {
         return new JobBuilder(ARTIST_SONG_SYNC_JOB.getJobName(), jobRepository)
             .start(artistSyncStep)
             .next(artistSongSyncStep)
-            .listener(new JobLoggingListener())
+            .listener(jobLoggingListener)
             .build();
     }
 
