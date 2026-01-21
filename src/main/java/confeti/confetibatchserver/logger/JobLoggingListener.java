@@ -1,5 +1,7 @@
 package confeti.confetibatchserver.logger;
 
+import confeti.confetibatchserver.global.notification.NotificationAgent;
+import confeti.confetibatchserver.global.notification.slack.SlackNotificationType;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,12 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JobLoggingListener implements JobExecutionListener {
+
+    private final NotificationAgent notificationAgent;
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
@@ -28,10 +33,45 @@ public class JobLoggingListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.FAILED) {
             loggingWhenFailed(jobExecution);
-            // TODO 알림 보내기 - 필요 시
+            notifyWhenFailed(jobExecution);
             return;
         }
         loggingWhenSucceed(jobExecution);
+    }
+
+    private void notifyWhenFailed(JobExecution jobExecution) {
+        List<Throwable> allFailureExceptions = jobExecution.getAllFailureExceptions();
+        JobParameters jobParameters = jobExecution.getJobParameters();
+
+        String errorCauses = getErrorCauseMessages(allFailureExceptions);
+        String formattedParameters = formatJobParameters(jobParameters);
+
+        String message = String.format(
+            "🛑 *Job Failed: %s* (Exec ID: %d)\n" +
+                "📋 *Job Parameters (Copy & Paste):*\n```%s```\n" +
+                "🔥 *Error Causes:*%s",
+            jobExecution.getJobInstance().getJobName(),
+            jobExecution.getId(),
+            formattedParameters,
+            errorCauses
+        );
+
+        notificationAgent.notify(SlackNotificationType.JOB_FAILED, message);
+    }
+
+    private String formatJobParameters(JobParameters jobParameters) {
+        if (jobParameters.isEmpty()) {
+            return "(No Parameters)";
+        }
+
+        StringBuilder paramsBuilder = new StringBuilder();
+        jobParameters.getParameters().forEach((key, parameter) -> {
+            paramsBuilder.append(key)
+                .append("=")
+                .append(parameter.getValue())
+                .append("\n");
+        });
+        return paramsBuilder.toString();
     }
 
     private void loggingWhenSucceed(JobExecution jobExecution) {
