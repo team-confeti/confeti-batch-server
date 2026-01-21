@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @Profile(
-    value = {"prod", "local"}
+    value = {"prod"}
 )
 public class SlackNotificationAgent implements NotificationAgent {
 

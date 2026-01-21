@@ -6,55 +6,18 @@ import java.net.URI;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.util.Timeout;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode;
 import org.springframework.web.util.UriBuilder;
 
 @Slf4j
 @RequiredArgsConstructor
 public class MethodStepImpl<T> implements MethodStep<T> {
 
-    private final RestClient.Builder restClientBuilder;
+    private final RestClient restClient;
     private RestClient.RequestHeadersSpec<?> methodType;
-
-    /**
-     * RestClient의 baseUrl과 defaultHeader, encoding 설정
-     *
-     * @param baseUrl
-     * @return
-     */
-    private RestClient setBaseUrl(String baseUrl) {
-        // 인코딩 설정
-        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
-        factory.setEncodingMode(EncodingMode.VALUES_ONLY);
-
-        // HttpClient 생성 (타임아웃 설정)
-        HttpClient httpClient = HttpClients.custom()
-            .setDefaultRequestConfig(
-                RequestConfig.custom()
-                    .setConnectionRequestTimeout(Timeout.ofSeconds(120))
-                    .setResponseTimeout(Timeout.ofSeconds(120))
-                    .build()
-            )
-            .build();
-
-        return this.restClientBuilder
-            .requestFactory(new HttpComponentsClientHttpRequestFactory(httpClient))
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .baseUrl(baseUrl)
-            .build();
-    }
 
     /**
      * GET 요청 빌더
@@ -74,7 +37,7 @@ public class MethodStepImpl<T> implements MethodStep<T> {
 
     private class GetRequestBuilderImpl implements GetRequestBuilder {
 
-        private String baseUrl;
+        private String baseUrl = "";
         private String path;
         private MultiValueMap<String, String> params;
 
@@ -98,12 +61,9 @@ public class MethodStepImpl<T> implements MethodStep<T> {
 
         @Override
         public ConnectStep build() {
-            // base url 기본 값
-            if (!StringUtils.hasText(baseUrl)) {
-                baseUrl = "";
-            }
-
-            RestClient restClient = setBaseUrl(baseUrl);
+            RestClient requestClient = restClient.mutate()
+                .baseUrl(this.baseUrl)
+                .build();
 
             Function<UriBuilder, URI> uriFunction = uriBuilder -> {
                 // path
@@ -120,7 +80,7 @@ public class MethodStepImpl<T> implements MethodStep<T> {
             };
 
             // GET 요청 생성
-            methodType = restClient
+            methodType = requestClient
                 .get()
                 .uri(uriFunction);
             return new ConnectStepImpl(methodType);
@@ -129,7 +89,7 @@ public class MethodStepImpl<T> implements MethodStep<T> {
 
     private class PostRequestBuilderImpl implements PostRequestBuilder {
 
-        private String baseUrl;
+        private String baseUrl = "";
         private String path;
         private MultiValueMap<String, String> params;
         private Object requestBody;
@@ -160,12 +120,9 @@ public class MethodStepImpl<T> implements MethodStep<T> {
 
         @Override
         public ConnectStep build() {
-            // base url 기본 값
-            if (!StringUtils.hasText(baseUrl)) {
-                baseUrl = "";
-            }
-
-            RestClient restClient = setBaseUrl(baseUrl);
+            RestClient requestClient = restClient.mutate()
+                .baseUrl(this.baseUrl)
+                .build();
 
             Function<UriBuilder, URI> uriFunction = uriBuilder -> {
                 // path
@@ -181,7 +138,7 @@ public class MethodStepImpl<T> implements MethodStep<T> {
                 return uriBuilder.build();
             };
 
-            RestClient.RequestBodySpec requestBodySpec = restClient
+            RestClient.RequestBodySpec requestBodySpec = requestClient
                 .post()
                 .uri(uriFunction);
 
