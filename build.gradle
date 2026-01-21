@@ -68,6 +68,9 @@ dependencies {
 
     // Rate limit
     implementation 'com.google.guava:guava:33.4.8-jre'
+
+    // HTTP Client
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
 }
 
 dependencyManagement {
