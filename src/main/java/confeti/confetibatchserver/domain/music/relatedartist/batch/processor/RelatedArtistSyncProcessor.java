@@ -3,6 +3,7 @@ package confeti.confetibatchserver.domain.music.relatedartist.batch.processor;
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
 import confeti.confetibatchserver.global.exectpion.ArtistIdAwareException;
 import confeti.confetibatchserver.job.relatedartistsync.dto.ArtistRelations;
+import feign.FeignException.FeignClientException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,8 @@ public class RelatedArtistSyncProcessor implements ItemProcessor<String, ArtistR
         try {
             List<String> allRelatedArtistIds = musicAPIHandler.getAllRelatedArtistIds(item);
             return new ArtistRelations(item, allRelatedArtistIds);
+        } catch (FeignClientException.NotFound e) {
+            return null;
         } catch (Exception e) {
             throw new ArtistIdAwareException(item, e);
         }
