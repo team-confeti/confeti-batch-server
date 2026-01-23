@@ -1,0 +1,23 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+notification:
+  slack:
+    job:
+      failed:
+        url: ${notification-secrets.slack.batch.job.failed.url}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+notification:
+  slack:
+    job:
+      failed:
+        url: ${notification-secrets.slack.batch.job.failed.url:확인필요}
+

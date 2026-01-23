@@ -5,6 +5,7 @@ import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
 import confeti.confetibatchserver.global.exectpion.ArtistIdAwareException;
 import confeti.confetibatchserver.job.artistsongsync.dto.ArtistIdWithSongs;
+import feign.FeignException.FeignClientException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,8 @@ public class ArtistSongSyncProcessor implements ItemProcessor<String, ArtistIdWi
             Map<String, ConfetiSong> songByArtistId = songService.getConfetiSongMapByArtistId(item);
             List<ConfetiSong> upsertSongs = songService.getUpsertSongs(newSongs, songByArtistId);
             return new ArtistIdWithSongs(item, upsertSongs);
+        } catch (FeignClientException.NotFound e) {
+            return null;
         } catch (Exception e) {
             throw new ArtistIdAwareException(item, e);
         }

@@ -4,6 +4,7 @@ spring:
       - classpath:common/application-schedule.yml
       - classpath:common/application-cloud.yml
       - classpath:common/application-apple-music.yml
+      - classpath:common/application-notification.yml
 
   jackson:
     serialization:
