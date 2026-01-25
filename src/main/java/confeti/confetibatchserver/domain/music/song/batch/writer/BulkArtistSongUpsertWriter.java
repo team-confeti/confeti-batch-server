@@ -19,7 +19,7 @@ public class BulkArtistSongUpsertWriter implements ItemWriter<ArtistIdWithSongs>
     @SuppressWarnings("unchecked")
     public void write(Chunk<? extends ArtistIdWithSongs> chunk) throws Exception {
         List<ArtistIdWithSongs> artistIdWithSongs = (List<ArtistIdWithSongs>) chunk.getItems();
-        musicSyncFacade.upsertArtistsSongs(artistIdWithSongs);
+        musicSyncFacade.syncArtistsSongs(artistIdWithSongs);
     }
 
 }

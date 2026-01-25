@@ -16,7 +16,7 @@ public class BulkArtistUpsertWriter implements ItemWriter<ConfetiArtist> {
 
     @Override
     public void write(Chunk<? extends ConfetiArtist> chunks) {
-        musicSyncFacade.upsertArtists(new ArrayList<>(chunks.getItems()));
+        musicSyncFacade.syncArtists(new ArrayList<>(chunks.getItems()));
     }
 
 }
