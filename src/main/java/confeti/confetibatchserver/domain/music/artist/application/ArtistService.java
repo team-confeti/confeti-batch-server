@@ -17,11 +17,12 @@ public class ArtistService {
 
     private final ArtistRepository artistRepository;
 
-    public void upsertArtists(Collection<Artist> artists) {
-        artistRepository.upsertArtists(artists);
+    public void upsertArtists(Collection<ConfetiArtist> artists) {
+        List<Artist> artistsToUpsert = artists.stream().map(Artist::from).toList();
+        artistRepository.upsertArtists(artistsToUpsert);
     }
 
-    public List<Artist> getUpdatedArtists(
+    public List<ConfetiArtist> getUpdatedArtists(
         List<ConfetiArtist> savedArtists,
         List<ConfetiArtist> newArtists
     ) {
@@ -32,7 +33,6 @@ public class ArtistService {
                 ConfetiArtist savedArtist = savedArtistById.get(artist.getId());
                 return savedArtist != null && savedArtist.isDifferentData(artist);
             })
-            .map(Artist::from)
             .toList();
     }
 

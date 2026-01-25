@@ -28,7 +28,8 @@ public class MusicSyncFacade {
         Set<String> artistIds = artists.stream().map(ConfetiArtist::getId)
             .collect(Collectors.toSet());
         List<ConfetiArtist> fetchedArtists = musicAPIHandler.getArtistsByIds(artistIds);
-        List<Artist> updatedArtists = artistService.getUpdatedArtists(artists, fetchedArtists);
+        List<ConfetiArtist> updatedArtists = artistService.getUpdatedArtists(artists,
+            fetchedArtists);
         artistService.upsertArtists(updatedArtists);
     }
 
