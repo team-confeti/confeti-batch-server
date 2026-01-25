@@ -1,11 +1,11 @@
 package confeti.confetibatchserver.external.service;
 
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
+import confeti.confetibatchserver.domain.music.song.dto.ConfetiSongWithArtistIds;
 import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
 import confeti.confetibatchserver.external.client.AppleMusicFeignClient;
 import confeti.confetibatchserver.external.client.dto.artist.AppleMusicArtistsResponse;
 import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartResponse;
-import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartSongResponse;
 import confeti.confetibatchserver.external.client.dto.chart.AppleMusicChartsResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicResponse;
 import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicsResponse;
@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -75,25 +76,50 @@ public class AppleMusicAPIHandler implements MusicAPIHandler {
     }
 
     @Override
-    public List<AppleMusicMusicResponse> getTopSongs(int limit) {
+    public List<ConfetiSong> getTopSongs(int limit) {
         AppleMusicChartsResponse chartsResponse = appleMusicFeignClient.getCharts(
             SONGS_TYPE, String.valueOf(limit));
 
-        return Optional.ofNullable(chartsResponse.results())
+        return Optional.ofNullable(chartsResponse)
+            .map(AppleMusicChartsResponse::results)
             .map(AppleMusicChartResponse::songs)
-            .filter(songs -> !songs.isEmpty())
-            .map(List::getFirst)
-            .map(AppleMusicChartSongResponse::data)
-            .orElse(Collections.emptyList());
+            .stream()
+            .flatMap(Collection::stream)
+            .flatMap(appleMusicChartSongResponse ->
+                Optional.ofNullable(appleMusicChartSongResponse.data())
+                    .stream()
+                    .flatMap(Collection::stream)
+            )
+            .map(AppleMusicMusicResponse::toConfetiSong)
+            .toList();
     }
 
     @Override
-    public List<AppleMusicMusicResponse> getSongsByIds(Collection<String> songIds) {
+    public List<ConfetiSong> getSongsByIds(Collection<String> songIds) {
+        return fetchBySongIdsAndMapper(songIds, AppleMusicMusicResponse::toConfetiSong);
+    }
+
+    @Override
+    public List<ConfetiSongWithArtistIds> getSongWithArtistIdsByIds(Collection<String> songIds) {
+        return fetchBySongIdsAndMapper(songIds,
+            AppleMusicMusicResponse::toConfetiSongWithArtistIds);
+    }
+
+    private <T> List<T> fetchBySongIdsAndMapper(
+        Collection<String> songIds,
+        Function<AppleMusicMusicResponse, T> mapper
+    ) {
         if (songIds.isEmpty()) {
             return Collections.emptyList();
         }
         String joinedSongIds = String.join(QUERY_PARAMETER_IDS_DELIMITER, songIds);
         AppleMusicMusicsResponse response = appleMusicFeignClient.getSongsByIds(joinedSongIds);
-        return Optional.ofNullable(response.data()).orElse(Collections.emptyList());
+
+        return Optional.ofNullable(response)
+            .map(AppleMusicMusicsResponse::data)
+            .stream()
+            .flatMap(Collection::stream)
+            .map(mapper)
+            .toList();
     }
 }
