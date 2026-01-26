@@ -1,5 +1,6 @@
 package confeti.confetibatchserver.external.client.dto.music;
 
+import confeti.confetibatchserver.domain.music.song.dto.ConfetiSongWithArtistIds;
 import confeti.confetibatchserver.domain.music.song.vo.ConfetiSong;
 import java.util.Collections;
 import java.util.List;
@@ -41,5 +42,11 @@ public record AppleMusicMusicResponse(
                 .map(AppleMusicMusicArtistResponse::id)
                 .toList())
             .orElse(Collections.emptyList());
+    }
+
+    public ConfetiSongWithArtistIds toConfetiSongWithArtistIds() {
+        ConfetiSong confetiSong = this.toConfetiSong();
+        List<String> artistIds = this.getArtistIds();
+        return new ConfetiSongWithArtistIds(confetiSong, artistIds);
     }
 }

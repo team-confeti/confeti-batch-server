@@ -1,6 +1,5 @@
 package confeti.confetibatchserver.api.music.facade;
 
-import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.domain.music.artist.application.ArtistService;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import confeti.confetibatchserver.domain.music.relatedartist.application.RelatedArtistService;
@@ -24,21 +23,22 @@ public class MusicSyncFacade {
     private final SongService songService;
     private final RelatedArtistService relatedArtistService;
 
-    public void upsertArtists(List<ConfetiArtist> artists) {
+    public void syncArtists(List<ConfetiArtist> artists) {
         Set<String> artistIds = artists.stream().map(ConfetiArtist::getId)
             .collect(Collectors.toSet());
         List<ConfetiArtist> fetchedArtists = musicAPIHandler.getArtistsByIds(artistIds);
-        List<Artist> updatedArtists = artistService.getUpdatedArtists(artists, fetchedArtists);
+        List<ConfetiArtist> updatedArtists = artistService.getUpdatedArtists(artists,
+            fetchedArtists);
         artistService.upsertArtists(updatedArtists);
     }
 
     @Transactional
-    public void upsertArtistsSongs(List<ArtistIdWithSongs> artistIdWithSongs) {
+    public void syncArtistsSongs(List<ArtistIdWithSongs> artistIdWithSongs) {
         songService.upsert(artistIdWithSongs);
     }
 
     @Transactional
-    public void reconcileRelatedArtists(List<ArtistRelations> newArtistRelations) {
+    public void syncRelatedArtists(List<ArtistRelations> newArtistRelations) {
         relatedArtistService.reconcile(newArtistRelations);
     }
 

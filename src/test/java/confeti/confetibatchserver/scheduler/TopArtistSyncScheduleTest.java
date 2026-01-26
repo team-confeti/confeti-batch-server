@@ -10,11 +10,9 @@ import static org.mockito.Mockito.verify;
 
 import confeti.confetibatchserver.domain.batch.jobconfig.JobConfig;
 import confeti.confetibatchserver.domain.batch.jobconfig.application.JobConfigService;
+import confeti.confetibatchserver.domain.music.artist.application.ArtistService;
+import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import confeti.confetibatchserver.domain.music.topartist.application.TopArtistService;
-import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicArtistResponse;
-import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicArtistsResponse;
-import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicRelationshipsResponse;
-import confeti.confetibatchserver.external.client.dto.music.AppleMusicMusicResponse;
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +38,9 @@ class TopArtistSyncScheduleTest {
     @Mock
     private JobConfig jobConfig;
 
+    @Mock
+    private ArtistService artistService;
+
     @InjectMocks
     private TopArtistSyncSchedule topArtistSyncSchedule;
 
@@ -47,25 +48,32 @@ class TopArtistSyncScheduleTest {
     @DisplayName("TopArtist 동기화 - 정상 동작")
     void runTopArtistSync_Success() {
         // given
-        AppleMusicMusicResponse song1 = createMusicResponse("song1", List.of("artist1", "artist2"));
-        AppleMusicMusicResponse song2 = createMusicResponse("song2", List.of("artist2", "artist3"));
-
         given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC_JOB)).willReturn(jobConfig);
         given(jobConfig.isActive()).willReturn(true);
-        given(musicAPIHandler.getTopSongs(anyInt()))
-            .willReturn(List.of(song1, song2));
-        given(musicAPIHandler.getSongsByIds(List.of("song1", "song2")))
-            .willReturn(List.of(song1, song2));
+
+        ConfetiArtist artist1 = createMockArtist("artist1");
+        ConfetiArtist artist2 = createMockArtist("artist2");
+        ConfetiArtist artist3 = createMockArtist("artist3");
+
+        given(topArtistService.getTopArtists(anyInt()))
+            .willReturn(List.of(artist1, artist2, artist3));
 
         // when
         topArtistSyncSchedule.runTopArtistSync();
 
         // then
-        ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
-        verify(topArtistService, times(1)).refresh(captor.capture());
+        ArgumentCaptor<List<ConfetiArtist>> upsertArtistCaptor = ArgumentCaptor.forClass(
+            List.class);
+        verify(artistService, times(1)).upsertArtists(upsertArtistCaptor.capture());
 
-        List<String> artistIds = captor.getValue();
-        assertThat(artistIds).containsExactly("artist1", "artist2", "artist3");
+        ArgumentCaptor<List<String>> refreshCaptor = ArgumentCaptor.forClass(List.class);
+        verify(topArtistService, times(1)).refresh(refreshCaptor.capture());
+
+        List<ConfetiArtist> upsertArtist = upsertArtistCaptor.getValue();
+        assertThat(upsertArtist).isEqualTo(List.of(artist1, artist2, artist3));
+
+        List<String> refreshCapturedIds = refreshCaptor.getValue();
+        assertThat(refreshCapturedIds).containsExactly("artist1", "artist2", "artist3");
     }
 
     @Test
@@ -89,9 +97,7 @@ class TopArtistSyncScheduleTest {
         // given
         given(jobConfigService.getByJobInfo(TOP_ARTIST_SYNC_JOB)).willReturn(jobConfig);
         given(jobConfig.isActive()).willReturn(true);
-        given(musicAPIHandler.getTopSongs(anyInt()))
-            .willReturn(List.of());
-        given(musicAPIHandler.getSongsByIds(List.of()))
+        given(topArtistService.getTopArtists(anyInt()))
             .willReturn(List.of());
 
         // when
@@ -99,20 +105,18 @@ class TopArtistSyncScheduleTest {
 
         // then
         ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<ConfetiArtist>> upsertCaptor = ArgumentCaptor.forClass(List.class);
         verify(topArtistService, times(1)).refresh(captor.capture());
+        verify(artistService, times(1)).upsertArtists(upsertCaptor.capture());
 
         List<String> artistIds = captor.getValue();
         assertThat(artistIds).isEmpty();
+
+        List<ConfetiArtist> artists = upsertCaptor.getValue();
+        assertThat(artists).isEmpty();
     }
 
-    private AppleMusicMusicResponse createMusicResponse(String songId, List<String> artistIds) {
-        List<AppleMusicMusicArtistResponse> artists = artistIds.stream()
-            .map(AppleMusicMusicArtistResponse::new)
-            .toList();
-
-        AppleMusicMusicArtistsResponse artistsResponse = new AppleMusicMusicArtistsResponse(artists);
-        AppleMusicMusicRelationshipsResponse relationships = new AppleMusicMusicRelationshipsResponse(artistsResponse);
-
-        return new AppleMusicMusicResponse(songId, "songs", null, relationships);
+    private ConfetiArtist createMockArtist(String id) {
+        return ConfetiArtist.of(id, "name-" + id, "artworkUrl-" + id);
     }
 }
