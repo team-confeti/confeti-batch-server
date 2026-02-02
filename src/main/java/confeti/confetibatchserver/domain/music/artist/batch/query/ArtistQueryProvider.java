@@ -1,6 +1,7 @@
 package confeti.confetibatchserver.domain.music.artist.batch.query;
 
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -49,6 +50,19 @@ public class ArtistQueryProvider {
         sortKey.put(ARTIST_ID, Order.ASCENDING);
         queryProvider.setSortKeys(sortKey);
 
+        return queryProvider.getObject();
+    }
+
+    public PagingQueryProvider selectAllArtistIdsLtTargetTime(DataSource dataSource)
+        throws Exception {
+        SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
+        queryProvider.setDataSource(dataSource);
+        queryProvider.setSelectClause("SELECT artist_id");
+        queryProvider.setFromClause("FROM artist");
+
+        queryProvider.setWhereClause("WHERE created_at < :targetTime");
+
+        queryProvider.setSortKeys(Collections.singletonMap("artist_id", Order.ASCENDING));
         return queryProvider.getObject();
     }
 
