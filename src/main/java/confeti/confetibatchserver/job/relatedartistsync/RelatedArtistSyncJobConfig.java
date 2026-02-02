@@ -8,7 +8,7 @@ import confeti.confetibatchserver.api.music.facade.MusicSyncFacade;
 import confeti.confetibatchserver.domain.batch.stepconfig.StepConfig;
 import confeti.confetibatchserver.domain.batch.stepconfig.application.StepConfigService;
 import confeti.confetibatchserver.domain.music.artist.batch.query.ArtistQueryProvider;
-import confeti.confetibatchserver.domain.music.artist.batch.reader.ArtistIdReader;
+import confeti.confetibatchserver.domain.music.artist.batch.reader.ArtistIdReaderLtTargetTime;
 import confeti.confetibatchserver.domain.music.relatedartist.batch.processor.RelatedArtistSyncProcessor;
 import confeti.confetibatchserver.domain.music.relatedartist.batch.writer.BulkRelatedArtistUpsertWriter;
 import confeti.confetibatchserver.external.service.MusicAPIHandler;
@@ -17,12 +17,14 @@ import confeti.confetibatchserver.logger.JobLoggingListener;
 import confeti.confetibatchserver.logger.RelatedArtistSyncSkipLogger;
 import feign.RetryableException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.concurrent.Future;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -87,9 +89,13 @@ public class RelatedArtistSyncJobConfig {
     }
 
     @Bean
+    @StepScope
     public ItemReader<String> relatedArtistStepReader(DataSource dataSource) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(RELATED_ARTIST_SYNC_STEP);
-        return new ArtistIdReader(dataSource, stepConfig, artistQueryProvider);
+
+        LocalDateTime targetTime = LocalDateTime.now();
+        return new ArtistIdReaderLtTargetTime(dataSource, stepConfig, artistQueryProvider,
+            targetTime);
     }
 
     @Bean
