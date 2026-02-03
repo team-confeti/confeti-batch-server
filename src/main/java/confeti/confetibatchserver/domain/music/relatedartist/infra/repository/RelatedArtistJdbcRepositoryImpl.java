@@ -30,7 +30,7 @@ public class RelatedArtistJdbcRepositoryImpl implements RelatedArtistJdbcReposit
     private static final String BULK_DELETE_RELATED_ARTIST_QUERY = """
         DELETE
         FROM related_artists as ra
-        WHERE ra.artist_id = :artistId AND ra.related_artist_id = :related_artist_id
+        WHERE ra.artist_id = :artistId AND ra.related_artist_id = :relatedArtistId
         """;
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
