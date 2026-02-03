@@ -8,6 +8,7 @@ import confeti.confetibatchserver.external.service.MusicAPIHandler;
 import confeti.confetibatchserver.global.annotation.Facade;
 import confeti.confetibatchserver.job.artistsongsync.dto.ArtistIdWithSongs;
 import confeti.confetibatchserver.job.relatedartistsync.dto.ArtistRelations;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,4 +43,13 @@ public class MusicSyncFacade {
         relatedArtistService.reconcile(newArtistRelations);
     }
 
+    public void saveMissedArtists(Collection<String> artistId) {
+        List<String> missedArtistIds = artistService.findMissedArtists(artistId);
+        if (missedArtistIds.isEmpty()) {
+            return;
+        }
+
+        List<ConfetiArtist> missedArtists = musicAPIHandler.getArtistsByIds(missedArtistIds);
+        artistService.upsertArtists(missedArtists);
+    }
 }
