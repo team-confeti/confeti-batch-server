@@ -93,7 +93,8 @@ public class RelatedArtistSyncJobConfig {
     public ItemReader<String> relatedArtistStepReader(DataSource dataSource) throws Exception {
         StepConfig stepConfig = stepConfigService.getByStepInfo(RELATED_ARTIST_SYNC_STEP);
 
-        LocalDateTime targetTime = LocalDateTime.now();
+        LocalDateTime targetTime = LocalDateTime.now().minusMinutes(1); // step 시작 전 존재하는 데이터만 처리
+
         return new ArtistIdReaderLtTargetTime(dataSource, stepConfig, artistQueryProvider,
             targetTime);
     }
