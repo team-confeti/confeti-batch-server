@@ -57,12 +57,12 @@ public class ArtistQueryProvider {
         throws Exception {
         SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
         queryProvider.setDataSource(dataSource);
-        queryProvider.setSelectClause("SELECT artist_id");
-        queryProvider.setFromClause("FROM artist");
+        queryProvider.setSelectClause("id");
+        queryProvider.setFromClause("FROM artists");
 
         queryProvider.setWhereClause("WHERE created_at < :targetTime");
 
-        queryProvider.setSortKeys(Collections.singletonMap("artist_id", Order.ASCENDING));
+        queryProvider.setSortKeys(Collections.singletonMap("id", Order.ASCENDING));
         return queryProvider.getObject();
     }
 
