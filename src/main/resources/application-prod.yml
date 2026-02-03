@@ -10,7 +10,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${db-secrets.host}:${db-secrets.port}/${db-secrets.dbname}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&rewriteBatchedStatements=true
+    url: jdbc:mysql://${db-secrets.host}:${db-secrets.port}/${db-secrets.dbname}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useLegacyDatetimeCode=false&rewriteBatchedStatements=true&sessionVariables=time_zone='Asia/Seoul'
     username: ${db-secrets.username}
     password: ${db-secrets.password}
     hikari:
