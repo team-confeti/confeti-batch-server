@@ -4,8 +4,10 @@ import confeti.confetibatchserver.domain.music.artist.Artist;
 import confeti.confetibatchserver.domain.music.artist.infra.repository.ArtistRepository;
 import confeti.confetibatchserver.domain.music.artist.vo.ConfetiArtist;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,17 @@ public class ArtistService {
                 ConfetiArtist savedArtist = savedArtistById.get(artist.getId());
                 return savedArtist != null && savedArtist.isDifferentData(artist);
             })
+            .toList();
+    }
+
+    public List<String> findMissedArtists(Collection<String> artistIds) {
+        if (artistIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Set<String> existingArtistIds = artistRepository.findIdsIn(artistIds);
+        return artistIds.stream()
+            .filter(id -> !existingArtistIds.contains(id))
             .toList();
     }
 
